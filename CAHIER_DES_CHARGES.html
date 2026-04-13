@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cahier des charges — Application metier cabinet d'avocats</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface-2: #1a1a1a;
+      --surface-3: #222222;
+      --border: #2a2a2a;
+      --border-light: #333333;
+      --text: #e8e8e8;
+      --text-muted: #888888;
+      --text-dim: #666666;
+      --accent: #c8a97e;
+      --accent-dim: rgba(200, 169, 126, 0.15);
+      --accent-border: rgba(200, 169, 126, 0.3);
+      --red: #e55050;
+      --red-dim: rgba(229, 80, 80, 0.12);
+      --green: #4ade80;
+      --green-dim: rgba(74, 222, 128, 0.12);
+      --blue: #60a5fa;
+      --blue-dim: rgba(96, 165, 250, 0.12);
+      --orange: #fb923c;
+      --orange-dim: rgba(251, 146, 60, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- NAV SIDEBAR --- */
+    .nav-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 100;
+      padding: 32px 0;
+    }
+
+    .nav-brand {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .nav-brand h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-brand p {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .nav-section {
+      padding: 8px 16px;
+    }
+
+    .nav-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 8px 8px 4px;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 6px 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+
+    .nav-link.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* --- MAIN CONTENT --- */
+    .main-content {
+      margin-left: 280px;
+      max-width: 900px;
+      padding: 48px 64px 120px;
+    }
+
+    /* --- HEADER --- */
+    .doc-header {
+      margin-bottom: 64px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doc-header .label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: 4px;
+    }
+
+    .doc-header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .doc-header .subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .meta-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .meta-card .label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .meta-card .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    /* --- SECTIONS --- */
+    .section {
+      margin-bottom: 64px;
+    }
+
+    .section-header {
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section-header h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 32px 0 16px;
+    }
+
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 24px 0 12px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: var(--text-muted);
+    }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    /* --- LISTS --- */
+    ul, ol {
+      margin: 8px 0 16px 20px;
+      color: var(--text-muted);
+    }
+
+    li {
+      margin-bottom: 6px;
+      padding-left: 4px;
+    }
+
+    li::marker {
+      color: var(--accent);
+    }
+
+    /* --- CARDS --- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin: 16px 0;
+    }
+
+    .card-accent {
+      border-left: 3px solid var(--accent);
+    }
+
+    .card-red {
+      background: var(--red-dim);
+      border-color: rgba(229, 80, 80, 0.2);
+    }
+
+    .card-green {
+      background: var(--green-dim);
+      border-color: rgba(74, 222, 128, 0.2);
+    }
+
+    .card-blue {
+      background: var(--blue-dim);
+      border-color: rgba(96, 165, 250, 0.2);
+    }
+
+    /* --- TABLES --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    tbody tr:hover {
+      background: var(--surface-2);
+    }
+
+    /* --- BADGES --- */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-green { background: var(--green-dim); color: var(--green); }
+    .badge-red { background: var(--red-dim); color: var(--red); }
+    .badge-blue { background: var(--blue-dim); color: var(--blue); }
+    .badge-orange { background: var(--orange-dim); color: var(--orange); }
+    .badge-accent { background: var(--accent-dim); color: var(--accent); }
+
+    /* --- WORKFLOW STEPS --- */
+    .workflow {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 16px 0;
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .workflow-step:first-child { border-radius: 8px 8px 0 0; }
+    .workflow-step:last-child { border-radius: 0 0 8px 8px; }
+
+    .workflow-step .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .workflow-step code {
+      background: var(--surface-3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--accent);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* --- CHECKLIST --- */
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 6px 0 6px 28px;
+      position: relative;
+    }
+
+    .checklist li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border-light);
+      border-radius: 4px;
+    }
+
+    /* --- KPI GRID --- */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .kpi-card .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .kpi-card .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 4px 0;
+    }
+
+    .kpi-card .kpi-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* --- MODULE GRID --- */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .module-card:hover {
+      border-color: var(--accent-border);
+    }
+
+    .module-card .module-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .module-card h4 {
+      font-size: 14px;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+
+    .module-card p {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* --- PERMISSION DOT --- */
+    .perm-yes { color: var(--green); }
+    .perm-no { color: var(--red); opacity: 0.5; }
+    .perm-partial { color: var(--orange); }
+
+    /* --- SCHEMA CODE --- */
+    .schema-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--text-muted);
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    .schema-block .entity {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .schema-block .field {
+      color: var(--text);
+      margin-left: 16px;
+    }
+
+    .schema-block .type {
+      color: var(--text-dim);
+    }
+
+    /* --- EXCLUSION LIST --- */
+    .exclusion-table td:first-child {
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1024px) {
+      .nav-sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 32px 24px; }
+      .meta-grid { grid-template-columns: repeat(2, 1fr); }
+      .module-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="nav-sidebar">
+  <div class="nav-brand">
+    <h2>Cahier des charges</h2>
+    <p>Application metier — Cabinet d'avocats</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">General</div>
+    <a href="#contexte" class="nav-link">Contexte et vision</a>
+    <a href="#utilisateurs" class="nav-link">Utilisateurs et roles</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Modules</div>
+    <a href="#dashboard" class="nav-link">Dashboard</a>
+    <a href="#crm" class="nav-link">CRM Cabinet</a>
+    <a href="#dossiers" class="nav-link">Gestion de dossiers</a>
+    <a href="#facturation" class="nav-link">Facturation</a>
+    <a href="#conflits" class="nav-link">Conflits d'interets</a>
+    <a href="#ia" class="nav-link">IA Juridique</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Technique</div>
+    <a href="#stack" class="nav-link">Stack technique</a>
+    <a href="#securite" class="nav-link">Securite et conformite</a>
+    <a href="#hors-perimetre" class="nav-link">Hors perimetre</a>
+    <a href="#annexes" class="nav-link">Annexes</a>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<main class="main-content">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <span class="label">Cahier des charges v1.0</span>
+    <h1>Application metier<br>Cabinet d'avocats</h1>
+    <p class="subtitle">
+      Outil sur mesure pour cabinets specialises en <strong>droit des societes</strong>,
+      <strong>litige commercial</strong> et <strong>droit fiscal</strong>.
+      Demonstrateur fonctionnel integrant CRM, gestion de dossiers, facturation et IA juridique.
+    </p>
+
+    <div class="meta-grid">
+      <div class="meta-card">
+        <div class="label">Specialites</div>
+        <div class="value">Corporate, Litige, Fiscal</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">Cible</div>
+        <div class="value">Cabinets 5-10 pers.</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">Stack</div>
+        <div class="value">Next.js + Convex</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">Date</div>
+        <div class="value">13 avril 2026</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MODULES OVERVIEW -->
+  <div class="module-grid">
+    <div class="module-card">
+      <div class="module-icon">&#9632;</div>
+      <h4>Dashboard</h4>
+      <p>Vue consolidee : KPI, alertes echeances, dossiers, facturation</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">&#9632;</div>
+      <h4>CRM Cabinet</h4>
+      <p>Fiches clients, historique complet, propositions commerciales</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">&#9632;</div>
+      <h4>Gestion de dossiers</h4>
+      <p>Workflows par specialite, GED, versioning, tracabilite</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">&#9632;</div>
+      <h4>Facturation</h4>
+      <p>Forfait + temps passe, provisions, relances automatiques</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">&#9632;</div>
+      <h4>Conflits d'interets</h4>
+      <p>Verification automatique RIN art. 7, registre des controles</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">&#9632;</div>
+      <h4>IA Juridique</h4>
+      <p>Analyse de documents et redaction assistee par Claude AI</p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1 : CONTEXTE ===== -->
+  <section class="section" id="contexte">
+    <div class="section-header">
+      <div class="section-number">Section 01</div>
+      <h2>Contexte et vision</h2>
+    </div>
+
+    <h3>Problematique</h3>
+    <p>Les cabinets d'avocats de petite taille (5-10 personnes) specialises en droit des affaires font face a des problematiques operationnelles majeures :</p>
+
+    <div class="card card-accent">
+      <ul>
+        <li><strong>Outils fragmentes</strong> : 4 a 6 outils deconnectes utilises simultanement sans interoperabilite</li>
+        <li><strong>Gestion des delais critique</strong> : un delai procedural oublie = rejet de la demande. Un delai fiscal manque = penalites automatiques</li>
+        <li><strong>Versioning chaotique</strong> : dizaines de versions de documents sans tracabilite fiable</li>
+        <li><strong>Charge administrative</strong> : 67% des avocats passent plus de 15h/semaine sur des taches admin</li>
+        <li><strong>Zero vision consolidee</strong> : pas de tableau de bord unifie sur l'activite du cabinet</li>
+      </ul>
+    </div>
+
+    <h3>Vision produit</h3>
+    <p>
+      Construire une <strong>application metier tout-en-un</strong> concue specifiquement pour les cabinets d'avocats specialises
+      en droit des affaires. L'outil centralise la gestion des clients, des dossiers, de la facturation et integre de
+      l'intelligence artificielle pour l'analyse documentaire et la redaction assistee.
+    </p>
+
+    <div class="card">
+      <strong>Proposition de valeur :</strong> Un seul outil qui remplace 5 logiciels deconnectes, concu par et pour des avocats
+      d'affaires, avec des workflows adaptes a chaque specialite (corporate, litige, fiscal).
+    </div>
+
+    <h3>Objectifs mesurables</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Temps administratif</div>
+        <div class="kpi-value">-40%</div>
+        <div class="kpi-desc">Reduction des heures/semaine sur taches admin</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Delais oublies</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-desc">Echeances manquees par trimestre</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tracabilite</div>
+        <div class="kpi-value">100%</div>
+        <div class="kpi-desc">Documents avec historique de validation</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Adoption equipe</div>
+        <div class="kpi-value">&gt;80%</div>
+        <div class="kpi-desc">Utilisateurs actifs quotidiens</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2 : UTILISATEURS ===== -->
+  <section class="section" id="utilisateurs">
+    <div class="section-header">
+      <div class="section-number">Section 02</div>
+      <h2>Utilisateurs et roles</h2>
+    </div>
+
+    <h3>Modele d'acces</h3>
+    <div class="card card-accent">
+      <p style="margin:0">
+        <strong>Invitation uniquement.</strong> Aucune inscription publique. Seul un administrateur (associe) peut inviter
+        de nouveaux utilisateurs et leur attribuer un role.
+      </p>
+    </div>
+
+    <h3>Matrice des permissions</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>Permission</th>
+          <th>Associe</th>
+          <th>Collaborateur</th>
+          <th>Secretaire</th>
+          <th>Stagiaire</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dashboard</td>
+          <td><span class="perm-yes">Complet</span></td>
+          <td><span class="perm-partial">Ses dossiers</span></td>
+          <td><span class="perm-partial">Vue admin</span></td>
+          <td><span class="perm-partial">Ses dossiers</span></td>
+        </tr>
+        <tr>
+          <td>CRM — Voir clients</td>
+          <td><span class="perm-yes">Tous</span></td>
+          <td><span class="perm-partial">Ses clients</span></td>
+          <td><span class="perm-yes">Tous</span></td>
+          <td><span class="perm-partial">Ses clients</span></td>
+        </tr>
+        <tr>
+          <td>CRM — Creer / modifier</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>CRM — Supprimer</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>Propositions commerciales</td>
+          <td><span class="perm-yes">Creer + valider</span></td>
+          <td><span class="perm-partial">Brouillon</span></td>
+          <td><span class="perm-partial">Brouillon</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>Dossiers — Voir</td>
+          <td><span class="perm-yes">Tous</span></td>
+          <td><span class="perm-partial">Assignes</span></td>
+          <td><span class="perm-yes">Tous</span></td>
+          <td><span class="perm-partial">Assignes</span></td>
+        </tr>
+        <tr>
+          <td>Dossiers — Creer</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>Dossiers — Valider docs</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>Facturation — Creer</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>Facturation — Valider</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>Conflits d'interets</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-partial">Consultation</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+        <tr>
+          <td>IA — Analyse + Redaction</td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-yes">Oui</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-partial">Lecture</span></td>
+        </tr>
+        <tr>
+          <td>Administration</td>
+          <td><span class="perm-yes">Tout</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+          <td><span class="perm-no">Non</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Profils detailles</h3>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="card">
+        <h4 style="margin-top:0">Associe (admin)</h4>
+        <ul>
+          <li>Accede a l'integralite du cabinet</li>
+          <li>Valide propositions et factures</li>
+          <li>Gere utilisateurs et parametres</li>
+          <li>Supervise tous les dossiers</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Collaborateur</h4>
+        <ul>
+          <li>Gere ses dossiers de A a Z</li>
+          <li>Cree des brouillons de propositions</li>
+          <li>Utilise les outils IA</li>
+          <li>Perimetre limite a ses dossiers</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Secretaire juridique</h4>
+        <ul>
+          <li>Gere l'admin : classement, facturation</li>
+          <li>Tous les dossiers en lecture</li>
+          <li>Cree des factures (validation associe)</li>
+          <li>Gere le CRM</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Stagiaire</h4>
+        <ul>
+          <li>Dossiers assignes en lecture</li>
+          <li>Consultation documents IA</li>
+          <li>Aucun acces facturation</li>
+          <li>Aucun acces administration</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3 : DASHBOARD ===== -->
+  <section class="section" id="dashboard">
+    <div class="section-header">
+      <div class="section-number">Module 01</div>
+      <h2>Dashboard</h2>
+    </div>
+
+    <p>Point d'entree de l'application. Vue consolidee adaptee au role de l'utilisateur.</p>
+
+    <h3>Dashboard Associe (vue complete)</h3>
+
+    <h4>Bloc 1 — KPI globaux</h4>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Dossiers actifs</div>
+        <div class="kpi-desc">Total + repartition par specialite</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Echeances a venir</div>
+        <div class="kpi-desc">7 prochains jours, badge rouge si urgence</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Facturation du mois</div>
+        <div class="kpi-desc">Emis / encaisse / impaye</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Taux de recouvrement</div>
+        <div class="kpi-desc">% factures payees dans les delais</div>
+      </div>
+    </div>
+
+    <h4>Bloc 2 — Alertes et echeances</h4>
+    <div class="card">
+      <ul>
+        <li>Liste chronologique des echeances (procedures, fiscal, AG)</li>
+        <li>Code couleur : <span class="badge badge-red">< 48h</span> <span class="badge badge-orange">< 7 jours</span> <span class="badge badge-green">> 7 jours</span></li>
+        <li>Clic sur echeance → ouvre le dossier</li>
+        <li>Filtrage par specialite</li>
+      </ul>
+    </div>
+
+    <h4>Bloc 3 — Dossiers recents</h4>
+    <p>10 derniers dossiers modifies avec statut, responsable et prochaine echeance.</p>
+
+    <h4>Bloc 4 — Activite du cabinet</h4>
+    <p>Timeline des dernieres actions (document ajoute, facture emise, dossier cree, validation). Filtrable par collaborateur.</p>
+
+    <h4>Bloc 5 — Facturation</h4>
+    <p>Graphique CA mensuel sur 12 mois (emis vs encaisse). Tableau factures en retard. Top 5 clients par CA.</p>
+
+    <h3>Vues par role</h3>
+    <table>
+      <thead>
+        <tr><th>Role</th><th>Scope</th><th>Focus</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Collaborateur</td><td>Ses dossiers uniquement</td><td>Echeances, activite, pas de CA global</td></tr>
+        <tr><td>Secretaire</td><td>Tout le cabinet</td><td>Facturation, relances, docs en attente</td></tr>
+        <tr><td>Stagiaire</td><td>Dossiers assignes</td><td>Echeances, documents a consulter</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== SECTION 4 : CRM ===== -->
+  <section class="section" id="crm">
+    <div class="section-header">
+      <div class="section-number">Module 02</div>
+      <h2>CRM Cabinet</h2>
+    </div>
+
+    <h3>Fiche client</h3>
+
+    <h4>Informations generales</h4>
+    <div class="card">
+      <ul>
+        <li>Denomination sociale / Nom (personne physique)</li>
+        <li>Forme juridique (SAS, SARL, SA, SCI...)</li>
+        <li>SIREN / SIRET</li>
+        <li>Adresse siege social</li>
+        <li>Capital social, dirigeant(s), secteur d'activite</li>
+        <li>Date de creation de la societe</li>
+      </ul>
+    </div>
+
+    <h4>Contacts</h4>
+    <div class="card">
+      <ul>
+        <li>Interlocuteur principal (nom, poste, tel, email)</li>
+        <li>Contacts secondaires (DAF, DRH, DG...)</li>
+        <li>Historique des changements d'interlocuteur</li>
+      </ul>
+    </div>
+
+    <h4>Informations juridiques</h4>
+    <div class="card">
+      <ul>
+        <li>Specialites concernees (multi-select)</li>
+        <li>Avocat referent au cabinet</li>
+        <li>Observations / notes internes</li>
+        <li>Tags personnalises (VIP, groupe, sensible...)</li>
+      </ul>
+    </div>
+
+    <h3>Historique client</h3>
+    <p>La fiche centralise <strong>tout l'historique de la relation</strong> :</p>
+    <ul>
+      <li><strong>Dossiers</strong> : tous les dossiers ouverts/clos avec lien direct</li>
+      <li><strong>Propositions</strong> : toutes les propositions envoyees + statut</li>
+      <li><strong>Factures</strong> : historique complet de facturation</li>
+      <li><strong>Echanges</strong> : log des RDV, appels, emails marquants</li>
+      <li><strong>Documents</strong> : docs transversaux (mandat, convention d'honoraires)</li>
+    </ul>
+
+    <h3>Propositions commerciales</h3>
+
+    <h4>Creation</h4>
+    <div class="card">
+      <ul>
+        <li>Selection du client + specialite</li>
+        <li>Description de la mission</li>
+        <li>Mode de facturation : <span class="badge badge-accent">Forfait</span> ou <span class="badge badge-blue">Temps passe</span></li>
+        <li>Detail des honoraires par phase (si forfait)</li>
+        <li>Taux horaire par intervenant (si temps passe)</li>
+        <li>Conditions de paiement (acompte, echeancier)</li>
+        <li>Conditions generales (modele personnalisable)</li>
+      </ul>
+    </div>
+
+    <h4>Workflow</h4>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> <code>brouillon</code> Creation par collaborateur ou secretaire</div>
+      <div class="workflow-step"><span class="step-num">2</span> <code>en_attente</code> Soumise a validation de l'associe</div>
+      <div class="workflow-step"><span class="step-num">3</span> <code>validee</code> Approuvee par l'associe</div>
+      <div class="workflow-step"><span class="step-num">4</span> <code>envoyee</code> PDF genere, envoyee au client</div>
+      <div class="workflow-step"><span class="step-num">5</span> <code>acceptee</code> / <code>refusee</code> Retour client → si acceptee : creation auto du dossier</div>
+    </div>
+
+    <h3>Recherche et filtres</h3>
+    <ul>
+      <li>Recherche full-text : denomination, SIREN, interlocuteur</li>
+      <li>Filtres : specialite, avocat referent, statut, tags</li>
+      <li>Tri : dernier dossier, CA cumule, nom</li>
+    </ul>
+  </section>
+
+  <!-- ===== SECTION 5 : DOSSIERS ===== -->
+  <section class="section" id="dossiers">
+    <div class="section-header">
+      <div class="section-number">Module 03</div>
+      <h2>Gestion de dossiers</h2>
+    </div>
+
+    <h3>Socle commun</h3>
+
+    <h4>Metadonnees</h4>
+    <div class="card">
+      <ul>
+        <li>Reference unique auto-generee : <code>SPE-AAAA-XXXX</code> (ex: <code>LIT-2026-0042</code>)</li>
+        <li>Client (lien CRM), specialite, intitule, description</li>
+        <li>Avocat responsable + collaborateurs assignes</li>
+        <li>Statut (selon workflow), dates ouverture/cloture</li>
+        <li>Montant honoraires, partie(s) adverse(s)</li>
+      </ul>
+    </div>
+
+    <h4>GED (Gestion Electronique de Documents)</h4>
+    <div class="card card-accent">
+      <ul>
+        <li>Arborescence par categorie (pieces, correspondances, actes, conclusions, notes)</li>
+        <li>Upload fichiers (PDF, Word, Excel, images)</li>
+        <li><strong>Versioning automatique</strong> : v1, v2, v3... avec auteur, date, commentaire</li>
+        <li><strong>Circuit de validation</strong> : a relire → relu par [nom] → valide par [nom]</li>
+        <li><strong>Verrouillage</strong> : document en modification = verrouille</li>
+        <li>Recherche dans les noms et metadonnees</li>
+      </ul>
+    </div>
+
+    <h4>Notes et activite</h4>
+    <ul>
+      <li>Fil d'activite chronologique</li>
+      <li>Notes internes (equipe assignee uniquement)</li>
+      <li>Mentions @collaborateur</li>
+    </ul>
+
+    <h4>Echeances</h4>
+    <div class="card">
+      <ul>
+        <li>Liste par dossier : date, description, responsable, statut</li>
+        <li>Alertes automatiques : <span class="badge badge-orange">J-7</span> <span class="badge badge-orange">J-3</span> <span class="badge badge-red">J-1</span> <span class="badge badge-red">J0</span></li>
+        <li>Code couleur sur le dashboard</li>
+      </ul>
+    </div>
+
+    <!-- CORPORATE -->
+    <h3>Workflow — Droit des societes</h3>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> <code>ouvert</code> Collecte d'informations</div>
+      <div class="workflow-step"><span class="step-num">2</span> <code>en_cours_redaction</code> Redaction des actes</div>
+      <div class="workflow-step"><span class="step-num">3</span> <code>en_relecture</code> Relecture / validation interne</div>
+      <div class="workflow-step"><span class="step-num">4</span> <code>en_attente_signature</code> Envoi pour signature</div>
+      <div class="workflow-step"><span class="step-num">5</span> <code>en_attente_formalites</code> Formalites (greffe, JAL)</div>
+      <div class="workflow-step"><span class="step-num">6</span> <code>clos</code> Termine</div>
+    </div>
+
+    <h4>Types d'operations</h4>
+    <ul>
+      <li>Constitution de societe (SAS, SARL, SCI, SA...)</li>
+      <li>Modification statutaire (siege, objet social, capital)</li>
+      <li>Cession de parts / actions</li>
+      <li>Pacte d'associes</li>
+      <li>Assemblee generale (AGO, AGE)</li>
+      <li>Dissolution / liquidation</li>
+      <li>M&A (due diligence, protocole, GAP)</li>
+    </ul>
+
+    <h4>Checklist type : Constitution SAS</h4>
+    <ul class="checklist">
+      <li>Redaction des statuts</li>
+      <li>Redaction du pacte d'associes (si applicable)</li>
+      <li>Attestation de depot des fonds</li>
+      <li>Certificat de domiciliation</li>
+      <li>Publication JAL</li>
+      <li>Depot au greffe</li>
+      <li>Obtention Kbis</li>
+    </ul>
+
+    <!-- LITIGE -->
+    <h3>Workflow — Litige commercial</h3>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> <code>ouvert</code> Analyse, collecte des pieces</div>
+      <div class="workflow-step"><span class="step-num">2</span> <code>phase_amiable</code> Mise en demeure, negociation</div>
+      <div class="workflow-step"><span class="step-num">3</span> <code>pre_contentieux</code> Preparation (assignation, pieces)</div>
+      <div class="workflow-step"><span class="step-num">4</span> <code>contentieux_en_cours</code> Procedure devant le tribunal</div>
+      <div class="workflow-step"><span class="step-num">5</span> <code>en_attente_decision</code> Delibere en cours</div>
+      <div class="workflow-step"><span class="step-num">6</span> <code>decision_rendue</code> Jugement obtenu</div>
+      <div class="workflow-step"><span class="step-num">7</span> <code>execution</code> Execution (huissier, saisies)</div>
+      <div class="workflow-step"><span class="step-num">8</span> <code>appel</code> Procedure d'appel</div>
+      <div class="workflow-step"><span class="step-num">9</span> <code>clos</code> Termine</div>
+    </div>
+
+    <h4>Gestion des conclusions</h4>
+    <div class="card">
+      <ul>
+        <li>Upload par jeu (conclusions n°1, n°2, recapitulatives)</li>
+        <li>Suivi des echanges demandeur/defendeur</li>
+        <li>Pieces numerotees avec bordereau de communication</li>
+        <li>Versioning automatique avec date de depot</li>
+      </ul>
+    </div>
+
+    <h4>Suivi des parties</h4>
+    <ul>
+      <li>Partie(s) adverse(s) : denomination, avocat, coordonnees</li>
+      <li>Juridiction : tribunal, chambre, numero de RG</li>
+      <li>Magistrat(s) en charge</li>
+    </ul>
+
+    <!-- FISCAL -->
+    <h3>Workflow — Droit fiscal</h3>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> <code>ouvert</code> Prise en charge, analyse</div>
+      <div class="workflow-step"><span class="step-num">2</span> <code>en_cours_analyse</code> Etude approfondie</div>
+      <div class="workflow-step"><span class="step-num">3</span> <code>en_cours_redaction</code> Redaction actes / reclamations</div>
+      <div class="workflow-step"><span class="step-num">4</span> <code>depose</code> Depot aupres administration</div>
+      <div class="workflow-step"><span class="step-num">5</span> <code>en_attente_reponse</code> Attente reponse admin</div>
+      <div class="workflow-step"><span class="step-num">6</span> <code>contentieux_fiscal</code> Recours tribunal admin</div>
+      <div class="workflow-step"><span class="step-num">7</span> <code>clos</code> Termine</div>
+    </div>
+
+    <h4>Calendrier fiscal automatise</h4>
+    <div class="card card-accent">
+      <ul>
+        <li>Calendrier annuel pre-rempli des echeances par client</li>
+        <li>Rappels automatiques avant chaque echeance</li>
+        <li>Suivi declarations effectuees / en retard</li>
+        <li>Delais specifiques : IS, TVA, CFE, CVAE, reclamations</li>
+      </ul>
+    </div>
+
+    <h3>Recherche et vues</h3>
+    <ul>
+      <li>Recherche full-text (reference, intitule, client, partie adverse)</li>
+      <li>Filtres : specialite, statut, avocat, date, client</li>
+      <li>Vue tableau + vue Kanban par statut</li>
+    </ul>
+  </section>
+
+  <!-- ===== SECTION 6 : FACTURATION ===== -->
+  <section class="section" id="facturation">
+    <div class="section-header">
+      <div class="section-number">Module 04</div>
+      <h2>Facturation</h2>
+    </div>
+
+    <p>Gestion du cycle de vie des factures. Ne remplace pas un logiciel comptable.</p>
+
+    <h3>Types de facturation</h3>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="card">
+        <h4 style="margin-top:0"><span class="badge badge-accent">Forfait</span></h4>
+        <ul>
+          <li>Montant fixe (proposition commerciale)</li>
+          <li>Facturation en plusieurs echeances</li>
+          <li>Suivi avancement par phase</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0"><span class="badge badge-blue">Temps passe</span></h4>
+        <ul>
+          <li>Taux horaire par intervenant</li>
+          <li>Saisie declarative (description, duree, date)</li>
+          <li>Calcul automatique du montant</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Cycle de vie</h3>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> <code>brouillon</code> Facture creee</div>
+      <div class="workflow-step"><span class="step-num">2</span> <code>en_attente</code> Soumise a l'associe</div>
+      <div class="workflow-step"><span class="step-num">3</span> <code>validee</code> Approuvee</div>
+      <div class="workflow-step"><span class="step-num">4</span> <code>envoyee</code> PDF genere, envoyee</div>
+      <div class="workflow-step"><span class="step-num">5</span> <code>payee_partiellement</code> / <code>payee</code> Reglement recu</div>
+      <div class="workflow-step"><span class="step-num">6</span> <code>en_retard</code> Delai depasse (auto)</div>
+      <div class="workflow-step"><span class="step-num">7</span> <code>annulee</code> Avoir emis</div>
+    </div>
+
+    <h3>Provisions et acomptes</h3>
+    <ul>
+      <li>Demande d'acompte a la signature</li>
+      <li>Suivi des provisions versees</li>
+      <li>Deduction automatique sur facture finale</li>
+      <li>Historique des mouvements par dossier</li>
+    </ul>
+
+    <h3>Relances automatiques</h3>
+    <div class="card">
+      <ul>
+        <li><span class="badge badge-green">J+7</span> Relance courtoise</li>
+        <li><span class="badge badge-orange">J+15</span> Relance ferme</li>
+        <li><span class="badge badge-red">J+30</span> Mise en demeure</li>
+      </ul>
+      <p style="margin-top:12px;margin-bottom:0">Modeles personnalisables. Historique des relances. Indicateur sur le dashboard.</p>
+    </div>
+
+    <h3>Reporting</h3>
+    <ul>
+      <li>CA mensuel / trimestriel / annuel</li>
+      <li>Repartition par specialite, client, collaborateur</li>
+      <li>Taux de recouvrement</li>
+      <li>Factures en retard (montant + anciennete)</li>
+    </ul>
+  </section>
+
+  <!-- ===== SECTION 7 : CONFLITS ===== -->
+  <section class="section" id="conflits">
+    <div class="section-header">
+      <div class="section-number">Module 05</div>
+      <h2>Conflits d'interets</h2>
+    </div>
+
+    <div class="card card-accent">
+      <p style="margin:0"><strong>Obligation deontologique (RIN art. 7)</strong> : tout avocat doit verifier l'absence de conflit d'interets avant d'accepter un dossier.</p>
+    </div>
+
+    <h3>Verification automatique</h3>
+    <p>A l'ouverture de chaque dossier :</p>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> Saisie du client + partie(s) adverse(s)</div>
+      <div class="workflow-step"><span class="step-num">2</span> Recherche croisee automatique dans la base</div>
+      <div class="workflow-step"><span class="step-num">3</span> Resultat :
+        <span class="badge badge-green">Aucun conflit</span>
+        <span class="badge badge-orange">Potentiel</span>
+        <span class="badge badge-red">Confirme</span>
+      </div>
+    </div>
+
+    <h4>Verifications effectuees</h4>
+    <ul>
+      <li>La partie adverse est-elle un client actuel ou passe ?</li>
+      <li>Le client est-il partie adverse dans un autre dossier ?</li>
+      <li>Liens entre entites (groupe, filiales, dirigeants communs) ?</li>
+    </ul>
+
+    <h4>Registre</h4>
+    <ul>
+      <li>Chaque verification loguee (date, utilisateur, resultat)</li>
+      <li>Historique consultable par les associes</li>
+      <li>Preuve de conformite pour controle deontologique</li>
+      <li>Recherche floue pour variantes orthographiques</li>
+    </ul>
+  </section>
+
+  <!-- ===== SECTION 8 : IA ===== -->
+  <section class="section" id="ia">
+    <div class="section-header">
+      <div class="section-number">Module 06</div>
+      <h2>IA Juridique</h2>
+    </div>
+
+    <p>Deux fonctionnalites ciblees, concues pour etre utiles au quotidien sans remplacer le travail de l'avocat.</p>
+
+    <h3>Analyse de documents</h3>
+    <div class="card">
+      <p><strong>Upload d'un document → analyse structuree par l'IA</strong></p>
+      <ul>
+        <li><strong>Extraction de clauses cles</strong> : objet, duree, resiliation, non-concurrence, garantie, responsabilite, clause compromissoire</li>
+        <li><strong>Resume structure</strong> : parties, objet, engagements, conditions particulieres</li>
+        <li><strong>Tableau des obligations</strong> : obligations de chaque partie avec dates et conditions</li>
+        <li><strong>Points d'attention</strong> : clauses inhabituelles, desequilibrees, problematiques</li>
+      </ul>
+    </div>
+
+    <h4>Documents supportes</h4>
+    <ul>
+      <li>Contrats commerciaux, baux commerciaux</li>
+      <li>Statuts de societe, pactes d'associes</li>
+      <li>Conclusions adverses</li>
+      <li>Protocoles d'accord / transactions</li>
+      <li>Actes de cession</li>
+    </ul>
+
+    <h3>Redaction assistee</h3>
+    <div class="card">
+      <p><strong>Generation de brouillons a partir du contexte du dossier</strong></p>
+      <h4 style="margin-top:12px">Types de documents generables</h4>
+      <ul>
+        <li>Mise en demeure</li>
+        <li>Courrier de relance</li>
+        <li>Assignation (trame)</li>
+        <li>Conclusions (structure)</li>
+        <li>Note de synthese interne</li>
+        <li>Courrier a l'administration fiscale</li>
+        <li>Convocation d'AG + PV (trame)</li>
+      </ul>
+    </div>
+
+    <h4>Workflow</h4>
+    <div class="workflow">
+      <div class="workflow-step"><span class="step-num">1</span> Selection du type de document</div>
+      <div class="workflow-step"><span class="step-num">2</span> L'IA accede au contexte du dossier</div>
+      <div class="workflow-step"><span class="step-num">3</span> Instructions specifiques (texte libre)</div>
+      <div class="workflow-step"><span class="step-num">4</span> Generation du brouillon → v1 dans la GED</div>
+      <div class="workflow-step"><span class="step-num">5</span> Edition manuelle → validation par l'associe</div>
+    </div>
+
+    <h3>Garde-fous</h3>
+    <div class="card card-red" style="border-left: 3px solid var(--red);">
+      <ul>
+        <li>Chaque document genere est marque <strong>"Genere par IA — A verifier et valider"</strong></li>
+        <li>Validation obligatoire par un associe avant envoi externe</li>
+        <li>L'IA ne remplace pas le raisonnement juridique</li>
+        <li>Aucune donnee envoyee a des tiers sans chiffrement</li>
+        <li>Modeles configurables par le cabinet (tonalite, formules, structure)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 9 : STACK ===== -->
+  <section class="section" id="stack">
+    <div class="section-header">
+      <div class="section-number">Section 09</div>
+      <h2>Stack technique</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Couche</th><th>Technologie</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Frontend</strong></td><td>Next.js 15 (App Router) + TypeScript strict</td></tr>
+        <tr><td><strong>UI</strong></td><td>Tailwind CSS + shadcn/ui</td></tr>
+        <tr><td><strong>Backend</strong></td><td>Convex (DB, logique serveur, real-time)</td></tr>
+        <tr><td><strong>Auth</strong></td><td>Convex Auth (invitation uniquement)</td></tr>
+        <tr><td><strong>Stockage</strong></td><td>Convex File Storage (GED)</td></tr>
+        <tr><td><strong>IA</strong></td><td>API Claude (Anthropic)</td></tr>
+        <tr><td><strong>PDF</strong></td><td>Generation serveur (react-pdf)</td></tr>
+        <tr><td><strong>Deploy</strong></td><td>VPS (Docker + GitHub Actions CI/CD)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Schema de donnees (haut niveau)</h3>
+    <div class="schema-block">
+      <div><span class="entity">users</span></div>
+      <div class="field">id, name, email, role, invitedBy, createdAt</div>
+      <br>
+      <div><span class="entity">clients</span></div>
+      <div class="field">id, type, denomination, formeJuridique, siren, siret</div>
+      <div class="field">siegeSocial, capitalSocial, dirigeants, secteurActivite</div>
+      <div class="field">avocatReferentId, tags, notes, createdAt, updatedAt</div>
+      <br>
+      <div><span class="entity">contacts</span></div>
+      <div class="field">id, clientId, nom, prenom, poste, telephone, email, isPrincipal</div>
+      <br>
+      <div><span class="entity">dossiers</span></div>
+      <div class="field">id, reference, clientId, specialite, intitule, description, statut</div>
+      <div class="field">avocatResponsableId, collaborateursIds[], montantHonoraires</div>
+      <div class="field">partiesAdverses[], dateOuverture, dateCloture</div>
+      <br>
+      <div><span class="entity">dossiersCorporate</span> <span class="type">(extension)</span></div>
+      <div class="field">dossierId, typeOperation, checklist[], dateAG, dateDepotGreffe</div>
+      <br>
+      <div><span class="entity">dossiersLitige</span> <span class="type">(extension)</span></div>
+      <div class="field">dossierId, typeProcedure, juridiction, chambre, numeroRG</div>
+      <div class="field">avocatAdverse, conclusionsEchangees[]</div>
+      <br>
+      <div><span class="entity">dossiersFiscal</span> <span class="type">(extension)</span></div>
+      <div class="field">dossierId, typeMission, regime, calendrierFiscal[], montantEnJeu</div>
+      <br>
+      <div><span class="entity">documents</span></div>
+      <div class="field">id, dossierId, nom, categorie, version, auteurId</div>
+      <div class="field">statutValidation, validePar, valideAt, url, createdAt</div>
+      <br>
+      <div><span class="entity">echeances</span></div>
+      <div class="field">id, dossierId, description, date, responsableId, statut, type</div>
+      <br>
+      <div><span class="entity">propositions</span></div>
+      <div class="field">id, clientId, specialite, modeFacturation, statut</div>
+      <div class="field">montantForfait | tauxHoraires[], phases[], conditionsPaiement</div>
+      <br>
+      <div><span class="entity">factures</span></div>
+      <div class="field">id, dossierId, clientId, numero, montantHT, tva, montantTTC</div>
+      <div class="field">statut, dateEmission, dateEcheance, datePaiement, relances[]</div>
+      <br>
+      <div><span class="entity">conflitsVerifications</span></div>
+      <div class="field">id, dossierId, partiesVerifiees[], resultat, dateVerification</div>
+      <br>
+      <div><span class="entity">analyseIA</span></div>
+      <div class="field">id, documentId, dossierId, type, resultat, createdBy, createdAt</div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 10 : SECURITE ===== -->
+  <section class="section" id="securite">
+    <div class="section-header">
+      <div class="section-number">Section 10</div>
+      <h2>Securite et conformite</h2>
+    </div>
+
+    <h3>Secret professionnel</h3>
+    <div class="card card-accent">
+      <ul>
+        <li>Hebergement en France (VPS francais)</li>
+        <li>Chiffrement en transit (HTTPS/TLS) et au repos</li>
+        <li>Zero acces tiers non autorises</li>
+        <li>IA : API Claude avec chiffrement, aucune donnee d'entrainement</li>
+      </ul>
+    </div>
+
+    <h3>RGPD</h3>
+    <ul>
+      <li>Registre des traitements</li>
+      <li>Droits d'acces, rectification, suppression</li>
+      <li>Conservation parametrable (5 ans min. pour dossiers)</li>
+      <li>Consentement explicite pour traitement IA</li>
+      <li>Logs d'acces aux donnees personnelles</li>
+    </ul>
+
+    <h3>LCB-FT</h3>
+    <ul>
+      <li>Fiche client enrichie (KYC)</li>
+      <li>Signalement via le batonnier (pas directement Tracfin)</li>
+      <li>Formulaire de declaration de soupcon generable</li>
+      <li>Documentation des controles</li>
+    </ul>
+
+    <h3>Acces et audit</h3>
+    <ul>
+      <li>Auth securisee (email + mot de passe, possibilite 2FA)</li>
+      <li>Sessions avec expiration automatique</li>
+      <li>Log complet non supprimable de toutes les actions</li>
+      <li>Sauvegarde automatique quotidienne</li>
+    </ul>
+  </section>
+
+  <!-- ===== SECTION 11 : HORS PERIMETRE ===== -->
+  <section class="section" id="hors-perimetre">
+    <div class="section-header">
+      <div class="section-number">Section 11</div>
+      <h2>Hors perimetre</h2>
+    </div>
+
+    <table class="exclusion-table">
+      <thead>
+        <tr><th>Element</th><th>Raison</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Recherche jurisprudentielle</td><td>Doctrine.fr et GenIA-L couvrent ce besoin</td></tr>
+        <tr><td>Justice predictive</td><td>Complexite + fiabilite insuffisante</td></tr>
+        <tr><td>Comptabilite complete</td><td>Logiciel dedie (export en v2)</td></tr>
+        <tr><td>Messagerie / email</td><td>Integration trop lourde</td></tr>
+        <tr><td>Portail client</td><td>Valeur ajoutee incertaine pour 5-10 pers.</td></tr>
+        <tr><td>Agenda / sync Outlook</td><td>Hors perimetre v1</td></tr>
+        <tr><td>E-facturation (Factur-X)</td><td>Norme en cours, v2</td></tr>
+        <tr><td>Export comptable</td><td>Hors perimetre v1</td></tr>
+        <tr><td>Time tracking chrono</td><td>Saisie declarative uniquement</td></tr>
+        <tr><td>Application mobile</td><td>Web responsive en v1</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== SECTION 12 : ANNEXES ===== -->
+  <section class="section" id="annexes">
+    <div class="section-header">
+      <div class="section-number">Section 12</div>
+      <h2>Annexes</h2>
+    </div>
+
+    <h3>Glossaire</h3>
+    <table>
+      <thead>
+        <tr><th>Terme</th><th>Definition</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>RIN</strong></td><td>Reglement Interieur National de la profession d'avocat</td></tr>
+        <tr><td><strong>AG / AGO / AGE</strong></td><td>Assemblee Generale / Ordinaire / Extraordinaire</td></tr>
+        <tr><td><strong>JAL</strong></td><td>Journal d'Annonces Legales</td></tr>
+        <tr><td><strong>Kbis</strong></td><td>Extrait du registre du commerce</td></tr>
+        <tr><td><strong>RG</strong></td><td>Repertoire General (numero tribunal)</td></tr>
+        <tr><td><strong>Conclusions</strong></td><td>Ecritures deposees par les avocats devant le tribunal</td></tr>
+        <tr><td><strong>LCB-FT</strong></td><td>Lutte Contre le Blanchiment et le Financement du Terrorisme</td></tr>
+        <tr><td><strong>KYC</strong></td><td>Know Your Customer</td></tr>
+        <tr><td><strong>GED</strong></td><td>Gestion Electronique de Documents</td></tr>
+        <tr><td><strong>GAP</strong></td><td>Garantie d'Actif et de Passif</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Concurrence directe</h3>
+    <table>
+      <thead>
+        <tr><th>Outil</th><th>Prix</th><th>Forces</th><th>Faiblesses</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>SECIB Neo</strong></td><td>Sur devis</td><td>Leader, 5000+ cabinets</td><td>Interface vieillissante, pas d'IA</td></tr>
+        <tr><td><strong>Jarvis Legal</strong></td><td>38-149€/user/mois</td><td>IA integree, complet</td><td>Generaliste</td></tr>
+        <tr><td><strong>Diapaz</strong></td><td>Sur devis</td><td>Workflows automatises</td><td>Lourd, courbe d'apprentissage</td></tr>
+        <tr><td><strong>Kleos</strong></td><td>Sur devis</td><td>E-facturation</td><td>Generaliste</td></tr>
+        <tr><td><strong>LegalProd</strong></td><td>49€/mois</td><td>Economique</td><td>Basique</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Volumes estimes (cabinet 5-10)</h3>
+    <table>
+      <thead>
+        <tr><th>Donnee</th><th>Volume</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Clients actifs</td><td>50 a 200</td></tr>
+        <tr><td>Dossiers actifs</td><td>30 a 80</td></tr>
+        <tr><td>Nouveaux dossiers / mois</td><td>5 a 15</td></tr>
+        <tr><td>Documents / dossier</td><td>10 a 50</td></tr>
+        <tr><td>Factures / mois</td><td>10 a 30</td></tr>
+        <tr><td>Utilisateurs</td><td>5 a 10</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<!-- SCROLL SPY -->
+<script>
+  const links = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('.section, .doc-header');
+
+  function updateActive() {
+    let current = '';
+    sections.forEach(s => {
+      const top = s.getBoundingClientRect().top;
+      if (top < 200) current = s.id || '';
+    });
+    links.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', updateActive);
+  updateActive();
+</script>
+
+</body>
+</html>
