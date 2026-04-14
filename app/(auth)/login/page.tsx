@@ -40,29 +40,38 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#001025] px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center gap-2 text-center">
-          <div className="flex items-center gap-2">
-            <Scale className="size-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight">LexiCab</h1>
+        {/* Branding */}
+        <div className="mb-10 flex flex-col items-center gap-3 text-center">
+          <div className="flex items-center gap-3">
+            <Scale className="size-8 text-[#BF9874]" />
+            <h1 className="font-heading text-3xl font-normal uppercase tracking-[0.25em] text-[#BF9874]">
+              LexiCab
+            </h1>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <div className="mx-auto mt-2 h-px w-16 bg-[#BF9874]/40" />
+          <p className="mt-1 text-sm tracking-wider text-white/50">
             Cabinet d&apos;avocats d&apos;affaires
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Connexion</CardTitle>
-            <CardDescription>
+        {/* Login Card */}
+        <Card className="rounded-none border-[#E5E2DC] bg-white shadow-xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="font-heading text-lg font-normal uppercase tracking-wider text-[#001025]">
+              Connexion
+            </CardTitle>
+            <CardDescription className="text-[#6B7280]">
               Accédez à votre espace de travail
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Adresse email</Label>
+                <Label htmlFor="email" className="text-xs uppercase tracking-wider text-[#6B7280]">
+                  Adresse email
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -71,10 +80,13 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
+                  className="rounded-none border-[#E5E2DC] focus-visible:ring-[#BF9874]"
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password" className="text-xs uppercase tracking-wider text-[#6B7280]">
+                  Mot de passe
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -83,6 +95,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
+                  className="rounded-none border-[#E5E2DC] focus-visible:ring-[#BF9874]"
                 />
               </div>
               {error && (
@@ -90,12 +103,18 @@ export default function LoginPage() {
               )}
             </CardContent>
             <CardFooter>
-              <Button className="w-full" disabled={loading}>
+              <Button
+                className="w-full rounded-none border border-[#BF9874] bg-[#BF9874] text-sm font-medium uppercase tracking-wider text-[#001025] hover:bg-[#BF9874]/90"
+                disabled={loading}
+              >
                 {loading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </CardFooter>
           </form>
         </Card>
+
+        {/* Footer accent */}
+        <div className="mx-auto mt-8 h-px w-24 bg-[#BF9874]/20" />
       </div>
     </div>
   );
