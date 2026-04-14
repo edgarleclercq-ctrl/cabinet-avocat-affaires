@@ -3,6 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { SPECIALITES, ROLES } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USER, DEMO_DOSSIER_COUNT, DEMO_ECHEANCES, DEMO_FACTURE_STATS, DEMO_ACTIVITES } from "@/lib/demo-data";
 import Link from "next/link";
 import { formatDistanceToNow, format, differenceInHours } from "date-fns";
 import { fr } from "date-fns/locale/fr";
@@ -154,7 +155,7 @@ function ActivityTimeline({
                   </span>
                 )}
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(activite.createdAt), {
+                  {formatDistanceToNow(new Date((activite as any)._creationTime || activite.createdAt), {
                     addSuffix: true,
                     locale: fr,
                   })}
@@ -352,11 +353,17 @@ function StagiaireDashboard({
 }
 
 export default function DashboardPage() {
-  const user = useQuery(api.users.me);
-  const dossierCount = useQuery(api.dossiers.count, {});
-  const echeances = useQuery(api.echeances.upcoming, { days: 7 });
-  const factureStats = useQuery(api.factures.stats, {});
-  const activites = useQuery(api.activites.recent, { limit: 10 });
+  const convexUser = useQuery(api.users.me, DEMO_MODE ? "skip" : {});
+  const convexDossierCount = useQuery(api.dossiers.count, DEMO_MODE ? "skip" : {});
+  const convexEcheances = useQuery(api.echeances.upcoming, DEMO_MODE ? "skip" : { days: 7 });
+  const convexFactureStats = useQuery(api.factures.stats, DEMO_MODE ? "skip" : {});
+  const convexActivites = useQuery(api.activites.recent, DEMO_MODE ? "skip" : { limit: 10 });
+
+  const user = DEMO_MODE ? DEMO_USER : convexUser;
+  const dossierCount = DEMO_MODE ? DEMO_DOSSIER_COUNT : convexDossierCount;
+  const echeances = DEMO_MODE ? DEMO_ECHEANCES : convexEcheances;
+  const factureStats = DEMO_MODE ? DEMO_FACTURE_STATS : convexFactureStats;
+  const activites = DEMO_MODE ? DEMO_ACTIVITES : convexActivites;
 
   if (!user) {
     return (

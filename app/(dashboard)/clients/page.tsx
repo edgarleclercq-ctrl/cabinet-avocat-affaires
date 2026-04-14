@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SPECIALITES } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USER, DEMO_CLIENTS, DEMO_USERS } from "@/lib/demo-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -45,14 +46,18 @@ export default function ClientsPage() {
   >(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const me = useQuery(api.users.me);
-  const users = useQuery(api.users.list, {});
-  const clients = useQuery(api.clients.list, {
+  const convexMe = useQuery(api.users.me, DEMO_MODE ? "skip" : {});
+  const convexUsers = useQuery(api.users.list, DEMO_MODE ? "skip" : {});
+  const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {
     search: search || undefined,
     specialite: specialite || undefined,
     avocatReferentId: avocatReferentId || undefined,
     isActive: true,
   });
+
+  const me = DEMO_MODE ? DEMO_USER : convexMe;
+  const users = DEMO_MODE ? DEMO_USERS : convexUsers;
+  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
 
   const canCreate =
     me && CAN_CREATE_ROLES.includes(me.role as (typeof CAN_CREATE_ROLES)[number]);
@@ -103,7 +108,7 @@ export default function ClientsPage() {
               }
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sp\u00e9cialit\u00e9" />
+                <SelectValue placeholder="Spécialité" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Toutes</SelectItem>
@@ -123,7 +128,7 @@ export default function ClientsPage() {
               }
             >
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Avocat r\u00e9f\u00e9rent" />
+                <SelectValue placeholder="Avocat référent" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Tous</SelectItem>
@@ -144,17 +149,17 @@ export default function ClientsPage() {
             </p>
           ) : clients.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center">
-              Aucun client trouv\u00e9.
+              Aucun client trouvé.
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>D\u00e9nomination</TableHead>
+                  <TableHead>Dénomination</TableHead>
                   <TableHead>Forme juridique</TableHead>
                   <TableHead>SIREN</TableHead>
-                  <TableHead>Sp\u00e9cialit\u00e9s</TableHead>
-                  <TableHead>Avocat r\u00e9f\u00e9rent</TableHead>
+                  <TableHead>Spécialités</TableHead>
+                  <TableHead>Avocat référent</TableHead>
                   <TableHead>Statut</TableHead>
                 </TableRow>
               </TableHeader>
@@ -174,9 +179,9 @@ export default function ClientsPage() {
                         </Link>
                       </TableCell>
                       <TableCell>
-                        {client.formeJuridique ?? "\u2014"}
+                        {client.formeJuridique ?? "—"}
                       </TableCell>
-                      <TableCell>{client.siren ?? "\u2014"}</TableCell>
+                      <TableCell>{client.siren ?? "—"}</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {client.specialites?.map((s) => (
@@ -186,7 +191,7 @@ export default function ClientsPage() {
                           ))}
                         </div>
                       </TableCell>
-                      <TableCell>{avocat?.name ?? "\u2014"}</TableCell>
+                      <TableCell>{avocat?.name ?? "—"}</TableCell>
                       <TableCell>
                         <Badge
                           variant={client.isActive ? "default" : "outline"}

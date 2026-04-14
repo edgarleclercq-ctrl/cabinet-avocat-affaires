@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { STATUTS_FACTURE } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USER, DEMO_FACTURES, DEMO_FACTURE_STATS, DEMO_CLIENTS } from "@/lib/demo-data";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -65,10 +66,15 @@ export default function FacturationPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedFactureId, setSelectedFactureId] = useState<Id<"factures"> | null>(null);
 
-  const me = useQuery(api.users.me);
-  const stats = useQuery(api.factures.stats, {});
-  const factures = useQuery(api.factures.list, statutFilter ? { statut: statutFilter } : {});
-  const clients = useQuery(api.clients.list, {});
+  const convexMe = useQuery(api.users.me, DEMO_MODE ? "skip" : {});
+  const convexStats = useQuery(api.factures.stats, DEMO_MODE ? "skip" : {});
+  const convexFactures = useQuery(api.factures.list, DEMO_MODE ? "skip" : (statutFilter ? { statut: statutFilter } : {}));
+  const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
+
+  const me = DEMO_MODE ? DEMO_USER : convexMe;
+  const stats = DEMO_MODE ? DEMO_FACTURE_STATS : convexStats;
+  const factures = DEMO_MODE ? DEMO_FACTURES : convexFactures;
+  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
 
   const clientsMap = new Map<string, string>(
     (clients ?? []).map((c: any) => [c._id, c.denomination])

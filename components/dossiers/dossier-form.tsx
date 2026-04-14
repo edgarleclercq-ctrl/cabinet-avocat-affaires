@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SPECIALITES } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USERS, DEMO_CLIENTS } from "@/lib/demo-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,8 +40,10 @@ interface DossierFormProps {
 }
 
 export function DossierForm({ onClose }: DossierFormProps) {
-  const users = useQuery(api.users.list, {});
-  const clients = useQuery(api.clients.list, {});
+  const convexUsers = useQuery(api.users.list, DEMO_MODE ? "skip" : {});
+  const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
+  const users = DEMO_MODE ? DEMO_USERS : convexUsers;
+  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
 
   const createDossier = useMutation(api.dossiers.create);
   const verifyConflicts = useMutation(api.conflits.verify);
@@ -143,11 +146,11 @@ export function DossierForm({ onClose }: DossierFormProps) {
           : undefined,
       });
 
-      toast.success("Dossier cr\u00e9\u00e9 avec succ\u00e8s");
+      toast.success("Dossier créé avec succès");
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la cr\u00e9ation"
+        error instanceof Error ? error.message : "Erreur lors de la création"
       );
     } finally {
       setIsSubmitting(false);
@@ -162,7 +165,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
           <Label htmlFor="clientId">Client *</Label>
           <Select value={clientId} onValueChange={(val) => setClientId(val ?? "")}>
             <SelectTrigger>
-              <SelectValue placeholder="S\u00e9lectionner un client" />
+              <SelectValue placeholder="Sélectionner un client" />
             </SelectTrigger>
             <SelectContent>
               {(clients ?? []).map((c) => (
@@ -176,10 +179,10 @@ export function DossierForm({ onClose }: DossierFormProps) {
 
         {/* Specialite */}
         <div className="grid gap-2">
-          <Label htmlFor="specialite">Sp\u00e9cialit\u00e9 *</Label>
+          <Label htmlFor="specialite">Spécialité *</Label>
           <Select value={specialite} onValueChange={(val) => setSpecialite(val ?? "")}>
             <SelectTrigger>
-              <SelectValue placeholder="S\u00e9lectionner une sp\u00e9cialit\u00e9" />
+              <SelectValue placeholder="Sélectionner une spécialité" />
             </SelectTrigger>
             <SelectContent>
               {Object.entries(SPECIALITES).map(([key, label]) => (
@@ -193,12 +196,12 @@ export function DossierForm({ onClose }: DossierFormProps) {
 
         {/* Intitule */}
         <div className="grid gap-2">
-          <Label htmlFor="intitule">Intitul\u00e9 *</Label>
+          <Label htmlFor="intitule">Intitulé *</Label>
           <Input
             id="intitule"
             value={intitule}
             onChange={(e) => setIntitule(e.target.value)}
-            placeholder="Intitul\u00e9 du dossier"
+            placeholder="Intitulé du dossier"
           />
         </div>
 
@@ -222,7 +225,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
             onValueChange={(val) => setAvocatResponsableId(val ?? "")}
           >
             <SelectTrigger>
-              <SelectValue placeholder="S\u00e9lectionner l'avocat responsable" />
+              <SelectValue placeholder="Sélectionner l'avocat responsable" />
             </SelectTrigger>
             <SelectContent>
               {(users ?? []).map((u) => (
@@ -284,7 +287,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
               className="grid grid-cols-2 gap-2 rounded-lg border p-3"
             >
               <Input
-                placeholder="D\u00e9nomination"
+                placeholder="Dénomination"
                 value={partie.denomination}
                 onChange={(e) =>
                   updatePartieAdverse(index, "denomination", e.target.value)
@@ -306,7 +309,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
               />
               <div className="flex gap-2">
                 <Input
-                  placeholder="Coordonn\u00e9es"
+                  placeholder="Coordonnées"
                   value={partie.coordonnees}
                   onChange={(e) =>
                     updatePartieAdverse(index, "coordonnees", e.target.value)
@@ -332,7 +335,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
           Annuler
         </Button>
         <Button onClick={() => handleSubmit()} disabled={isSubmitting}>
-          {isSubmitting ? "Cr\u00e9ation..." : "Cr\u00e9er le dossier"}
+          {isSubmitting ? "Création..." : "Créer le dossier"}
         </Button>
       </div>
 
@@ -342,10 +345,10 @@ export function DossierForm({ onClose }: DossierFormProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="size-5 text-amber-500" />
-              Conflits d&apos;int\u00e9r\u00eats d\u00e9tect\u00e9s
+              Conflits d&apos;intérêts détectés
             </DialogTitle>
             <DialogDescription>
-              Des conflits potentiels ont \u00e9t\u00e9 identifi\u00e9s. Veuillez les examiner
+              Des conflits potentiels ont été identifiés. Veuillez les examiner
               avant de continuer.
             </DialogDescription>
           </DialogHeader>
@@ -362,7 +365,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
                   </p>
                 ) : (
                   <p>
-                    Le client <strong>{c.partie}</strong> appara\u00eet comme partie
+                    Le client <strong>{c.partie}</strong> apparaît comme partie
                     adverse dans le dossier <strong>{c.dossierRef}</strong>
                   </p>
                 )}
@@ -383,7 +386,7 @@ export function DossierForm({ onClose }: DossierFormProps) {
                 handleSubmit(true);
               }}
             >
-              Cr\u00e9er malgr\u00e9 les conflits
+              Créer malgré les conflits
             </Button>
           </DialogFooter>
         </DialogContent>

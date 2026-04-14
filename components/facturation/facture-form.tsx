@@ -51,7 +51,7 @@ export function FactureForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!clientId) {
-      toast.error("Veuillez s\u00e9lectionner un client");
+      toast.error("Veuillez sélectionner un client");
       return;
     }
     if (!description.trim()) {
@@ -59,11 +59,11 @@ export function FactureForm({
       return;
     }
     if (montantHT <= 0) {
-      toast.error("Le montant HT doit \u00eatre sup\u00e9rieur \u00e0 0");
+      toast.error("Le montant HT doit être supérieur à 0");
       return;
     }
     if (!dateEcheance) {
-      toast.error("Veuillez saisir une date d'\u00e9ch\u00e9ance");
+      toast.error("Veuillez saisir une date d'échéance");
       return;
     }
 
@@ -79,10 +79,10 @@ export function FactureForm({
         dateEcheance,
         acomptesDeduits: acomptesDeduits ? parseFloat(acomptesDeduits) : undefined,
       });
-      toast.success("Facture cr\u00e9\u00e9e avec succ\u00e8s");
+      toast.success("Facture créée avec succès");
       onClose();
     } catch (error) {
-      toast.error("Erreur lors de la cr\u00e9ation de la facture");
+      toast.error("Erreur lors de la création de la facture");
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ export function FactureForm({
         <Label htmlFor="clientId">Client *</Label>
         <Select value={clientId} onValueChange={(val) => val !== null && setClientId(val)}>
           <SelectTrigger>
-            <SelectValue placeholder="S\u00e9lectionner un client" />
+            <SelectValue placeholder="Sélectionner un client" />
           </SelectTrigger>
           <SelectContent>
             {(clients ?? []).map((c) => (
@@ -112,7 +112,7 @@ export function FactureForm({
         <Label htmlFor="dossierId">Dossier (optionnel)</Label>
         <Select value={dossierId} onValueChange={(val) => val !== null && setDossierId(val)}>
           <SelectTrigger>
-            <SelectValue placeholder="S\u00e9lectionner un dossier" />
+            <SelectValue placeholder="Sélectionner un dossier" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">Aucun dossier</SelectItem>
@@ -140,7 +140,7 @@ export function FactureForm({
       {/* Montant HT + TVA */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="montantHT">Montant HT (\u20ac) *</Label>
+          <Label htmlFor="montantHT">Montant HT (€) *</Label>
           <Input
             id="montantHT"
             type="number"
@@ -176,9 +176,9 @@ export function FactureForm({
         </div>
       </div>
 
-      {/* Date \u00e9ch\u00e9ance */}
+      {/* Date échéance */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="dateEcheance">Date d&apos;\u00e9ch\u00e9ance *</Label>
+        <Label htmlFor="dateEcheance">Date d&apos;échéance *</Label>
         <Input
           id="dateEcheance"
           type="date"
@@ -187,9 +187,9 @@ export function FactureForm({
         />
       </div>
 
-      {/* Acomptes d\u00e9duits */}
+      {/* Acomptes déduits */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="acomptesDeduits">Acomptes d\u00e9duits (\u20ac)</Label>
+        <Label htmlFor="acomptesDeduits">Acomptes déduits (€)</Label>
         <Input
           id="acomptesDeduits"
           type="number"
@@ -207,7 +207,7 @@ export function FactureForm({
           Annuler
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Cr\u00e9ation..." : "Cr\u00e9er la facture"}
+          {loading ? "Création..." : "Créer la facture"}
         </Button>
       </div>
     </form>

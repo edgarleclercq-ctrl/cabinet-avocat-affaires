@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { Scale } from "lucide-react";
+import { DEMO_MODE } from "@/lib/demo-data";
 
 export default function DashboardLayout({
   children,
@@ -15,10 +16,22 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!DEMO_MODE && !isLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isLoading, isAuthenticated, router]);
+
+  // In demo mode, skip auth check
+  if (DEMO_MODE) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4 pt-16 lg:p-8 lg:pt-8">{children}</div>
+        </main>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

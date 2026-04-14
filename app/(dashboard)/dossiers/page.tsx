@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SPECIALITES, STATUTS_CORPORATE, STATUTS_LITIGE, STATUTS_FISCAL } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USER, DEMO_DOSSIERS, DEMO_USERS, DEMO_CLIENTS } from "@/lib/demo-data";
 import {
   Card,
   CardContent,
@@ -75,10 +76,9 @@ export default function DossiersPage() {
   const [avocatResponsableId, setAvocatResponsableId] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const users = useQuery(api.users.list, {});
-  const clients = useQuery(api.clients.list, {});
-
-  const dossiers = useQuery(api.dossiers.list, {
+  const convexUsers = useQuery(api.users.list, DEMO_MODE ? "skip" : {});
+  const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
+  const convexDossiers = useQuery(api.dossiers.list, DEMO_MODE ? "skip" : {
     search: search || undefined,
     specialite: specialite || undefined,
     statut: statut || undefined,
@@ -86,6 +86,10 @@ export default function DossiersPage() {
       ? (avocatResponsableId as Id<"users">)
       : undefined,
   });
+
+  const users = DEMO_MODE ? DEMO_USERS : convexUsers;
+  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
+  const dossiers = DEMO_MODE ? DEMO_DOSSIERS : convexDossiers;
 
   const clientMap = new Map<string, string>(
     (clients ?? []).map((c: any) => [c._id, c.denomination])
@@ -149,7 +153,7 @@ export default function DossiersPage() {
             onValueChange={(val) => setSpecialite(val ?? "")}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Sp\u00e9cialit\u00e9" />
+              <SelectValue placeholder="Spécialité" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Toutes</SelectItem>
@@ -216,10 +220,10 @@ export default function DossiersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>R\u00e9f\u00e9rence</TableHead>
+                  <TableHead>Référence</TableHead>
                   <TableHead>Client</TableHead>
-                  <TableHead>Sp\u00e9cialit\u00e9</TableHead>
-                  <TableHead>Intitul\u00e9</TableHead>
+                  <TableHead>Spécialité</TableHead>
+                  <TableHead>Intitulé</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Avocat responsable</TableHead>
                   <TableHead>Date d&apos;ouverture</TableHead>
@@ -235,7 +239,7 @@ export default function DossiersPage() {
                 ) : dossiers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Aucun dossier trouv\u00e9
+                      Aucun dossier trouvé
                     </TableCell>
                   </TableRow>
                 ) : (

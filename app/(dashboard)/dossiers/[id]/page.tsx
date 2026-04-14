@@ -91,7 +91,7 @@ const validationBadgeClass: Record<string, string> = {
 const validationLabels: Record<string, string> = {
   a_relire: "A relire",
   relu: "Relu",
-  valide: "Valid\u00e9",
+  valide: "Validé",
 };
 
 function getStatuts(specialite: string) {
@@ -157,10 +157,10 @@ export default function DossierDetailPage() {
   async function handleStatutChange(newStatut: string) {
     try {
       await updateStatut({ id: dossierId, statut: newStatut });
-      toast.success("Statut mis \u00e0 jour");
+      toast.success("Statut mis à jour");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la mise \u00e0 jour"
+        error instanceof Error ? error.message : "Erreur lors de la mise à jour"
       );
     }
   }
@@ -219,10 +219,10 @@ export default function DossierDetailPage() {
         <TabsList variant="line">
           <TabsTrigger value="informations">Informations</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="echeances">\u00c9ch\u00e9ances</TabsTrigger>
+          <TabsTrigger value="echeances">Échéances</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
-          <TabsTrigger value="temps">Temps pass\u00e9s</TabsTrigger>
-          <TabsTrigger value="specifique">Sp\u00e9cifique</TabsTrigger>
+          <TabsTrigger value="temps">Temps passés</TabsTrigger>
+          <TabsTrigger value="specifique">Spécifique</TabsTrigger>
           <TabsTrigger value="ia">IA</TabsTrigger>
         </TabsList>
 
@@ -288,10 +288,10 @@ function TabInformations({
         intitule,
         description: description || undefined,
       });
-      toast.success("Dossier mis \u00e0 jour");
+      toast.success("Dossier mis à jour");
       setEditing(false);
     } catch (error) {
-      toast.error("Erreur lors de la mise \u00e0 jour");
+      toast.error("Erreur lors de la mise à jour");
     }
   }
 
@@ -299,7 +299,7 @@ function TabInformations({
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Informations g\u00e9n\u00e9rales</CardTitle>
+          <CardTitle>Informations générales</CardTitle>
           <Button variant="ghost" size="sm" onClick={() => setEditing(!editing)}>
             <Edit className="mr-1 size-4" />
             {editing ? "Annuler" : "Modifier"}
@@ -307,31 +307,31 @@ function TabInformations({
         </CardHeader>
         <CardContent className="grid gap-3">
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <span className="text-muted-foreground">R\u00e9f\u00e9rence</span>
+            <span className="text-muted-foreground">Référence</span>
             <span className="font-mono">{dossier.reference}</span>
             <span className="text-muted-foreground">Client</span>
             <span>{client?.denomination ?? "..."}</span>
-            <span className="text-muted-foreground">Sp\u00e9cialit\u00e9</span>
+            <span className="text-muted-foreground">Spécialité</span>
             <span>{SPECIALITES[dossier.specialite as keyof typeof SPECIALITES]}</span>
             <span className="text-muted-foreground">Date d&apos;ouverture</span>
             <span>{dossier.dateOuverture}</span>
             {dossier.dateCloture && (
               <>
-                <span className="text-muted-foreground">Date de cl\u00f4ture</span>
+                <span className="text-muted-foreground">Date de clôture</span>
                 <span>{dossier.dateCloture}</span>
               </>
             )}
             <span className="text-muted-foreground">Montant honoraires</span>
             <span>
               {dossier.montantHonoraires
-                ? `${dossier.montantHonoraires.toLocaleString("fr-FR")} \u20ac`
-                : "Non d\u00e9fini"}
+                ? `${dossier.montantHonoraires.toLocaleString("fr-FR")} €`
+                : "Non défini"}
             </span>
           </div>
           {editing && (
             <div className="grid gap-3 pt-3 border-t">
               <div className="grid gap-2">
-                <Label>Intitul\u00e9</Label>
+                <Label>Intitulé</Label>
                 <Input
                   value={intitule}
                   onChange={(e) => setIntitule(e.target.value)}
@@ -361,7 +361,7 @@ function TabInformations({
 
       <Card>
         <CardHeader>
-          <CardTitle>\u00c9quipe</CardTitle>
+          <CardTitle>Équipe</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3">
           <div className="text-sm">
@@ -397,10 +397,10 @@ function TabInformations({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>D\u00e9nomination</TableHead>
+                  <TableHead>Dénomination</TableHead>
                   <TableHead>SIREN</TableHead>
                   <TableHead>Avocat</TableHead>
-                  <TableHead>Coordonn\u00e9es</TableHead>
+                  <TableHead>Coordonnées</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -468,13 +468,13 @@ function TabDocuments({
         mimeType: selectedFile.type,
       });
 
-      toast.success("Document t\u00e9l\u00e9vers\u00e9");
+      toast.success("Document téléversé");
       setUploadDialogOpen(false);
       setUploadNom("");
       setUploadCategorie("");
       setSelectedFile(null);
     } catch (error) {
-      toast.error("Erreur lors du t\u00e9l\u00e9versement");
+      toast.error("Erreur lors du téléversement");
     } finally {
       setUploading(false);
     }
@@ -486,7 +486,7 @@ function TabDocuments({
         <CardTitle>Documents (GED)</CardTitle>
         <Button size="sm" onClick={() => setUploadDialogOpen(true)}>
           <Upload className="mr-2 size-4" />
-          T\u00e9l\u00e9verser
+          Téléverser
         </Button>
       </CardHeader>
       <CardContent>
@@ -494,7 +494,7 @@ function TabDocuments({
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
-              <TableHead>Cat\u00e9gorie</TableHead>
+              <TableHead>Catégorie</TableHead>
               <TableHead>Version</TableHead>
               <TableHead>Auteur</TableHead>
               <TableHead>Validation</TableHead>
@@ -554,7 +554,7 @@ function TabDocuments({
                       <SelectContent>
                         <SelectItem value="a_relire">A relire</SelectItem>
                         <SelectItem value="relu">Relu</SelectItem>
-                        <SelectItem value="valide">Valid\u00e9</SelectItem>
+                        <SelectItem value="valide">Validé</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
@@ -563,7 +563,7 @@ function TabDocuments({
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => toggleLock({ id: doc._id })}
-                      title={doc.isLocked ? "D\u00e9verrouiller" : "Verrouiller"}
+                      title={doc.isLocked ? "Déverrouiller" : "Verrouiller"}
                     >
                       {doc.isLocked ? (
                         <Lock className="size-4 text-amber-500" />
@@ -583,7 +583,7 @@ function TabDocuments({
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>T\u00e9l\u00e9verser un document</DialogTitle>
+            <DialogTitle>Téléverser un document</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -595,10 +595,10 @@ function TabDocuments({
               />
             </div>
             <div className="grid gap-2">
-              <Label>Cat\u00e9gorie *</Label>
+              <Label>Catégorie *</Label>
               <Select value={uploadCategorie} onValueChange={(val) => setUploadCategorie(val ?? "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="S\u00e9lectionner" />
+                  <SelectValue placeholder="Sélectionner" />
                 </SelectTrigger>
                 <SelectContent>
                   {CATEGORIES_DOCUMENTS.map((cat) => (
@@ -626,7 +626,7 @@ function TabDocuments({
               Annuler
             </Button>
             <Button onClick={handleUpload} disabled={uploading}>
-              {uploading ? "T\u00e9l\u00e9versement..." : "T\u00e9l\u00e9verser"}
+              {uploading ? "Téléversement..." : "Téléverser"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -669,21 +669,21 @@ function TabEcheances({
         responsableId: responsableId as Id<"users">,
         type: type as "procedurale" | "fiscale" | "administrative" | "ag",
       });
-      toast.success("\u00c9ch\u00e9ance ajout\u00e9e");
+      toast.success("Échéance ajoutée");
       setDialogOpen(false);
       setDescription("");
       setDate("");
       setResponsableId("");
       setType("");
     } catch (error) {
-      toast.error("Erreur lors de la cr\u00e9ation");
+      toast.error("Erreur lors de la création");
     }
   }
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>\u00c9ch\u00e9ances</CardTitle>
+        <CardTitle>Échéances</CardTitle>
         <Button size="sm" onClick={() => setDialogOpen(true)}>
           <Plus className="mr-2 size-4" />
           Ajouter
@@ -711,7 +711,7 @@ function TabEcheances({
             ) : echeances.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
-                  Aucune \u00e9ch\u00e9ance
+                  Aucune échéance
                 </TableCell>
               </TableRow>
             ) : (
@@ -744,7 +744,7 @@ function TabEcheances({
                       }
                     >
                       {ech.statut === "traitee"
-                        ? "Trait\u00e9e"
+                        ? "Traitée"
                         : ech.statut === "en_retard"
                           ? "En retard"
                           : "A venir"}
@@ -774,7 +774,7 @@ function TabEcheances({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Ajouter une \u00e9ch\u00e9ance</DialogTitle>
+            <DialogTitle>Ajouter une échéance</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -799,7 +799,7 @@ function TabEcheances({
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="procedurale">Proc\u00e9durale</SelectItem>
+                  <SelectItem value="procedurale">Procédurale</SelectItem>
                   <SelectItem value="fiscale">Fiscale</SelectItem>
                   <SelectItem value="administrative">Administrative</SelectItem>
                   <SelectItem value="ag">AG</SelectItem>
@@ -810,7 +810,7 @@ function TabEcheances({
               <Label>Responsable *</Label>
               <Select value={responsableId} onValueChange={(val) => setResponsableId(val ?? "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="S\u00e9lectionner" />
+                  <SelectValue placeholder="Sélectionner" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
@@ -866,7 +866,7 @@ function TabNotes({
         mentions: mentionIds.length > 0 ? mentionIds : undefined,
       });
       setContenu("");
-      toast.success("Note ajout\u00e9e");
+      toast.success("Note ajoutée");
     } catch (error) {
       toast.error("Erreur lors de l'ajout");
     }
@@ -961,7 +961,7 @@ function TabTempsPasses({
         description,
         tauxHoraire: parseFloat(tauxHoraire),
       });
-      toast.success("Entr\u00e9e ajout\u00e9e");
+      toast.success("Entrée ajoutée");
       setDialogOpen(false);
       setDate("");
       setDureeMinutes("");
@@ -980,10 +980,10 @@ function TabTempsPasses({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Temps pass\u00e9s</CardTitle>
+          <CardTitle>Temps passés</CardTitle>
           <CardDescription>
             Total : {Math.floor(totalMinutes / 60)}h{String(totalMinutes % 60).padStart(2, "0")} |
-            Montant : {totalMontant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} \u20ac
+            Montant : {totalMontant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
           </CardDescription>
         </div>
         <Button size="sm" onClick={() => setDialogOpen(true)}>
@@ -998,7 +998,7 @@ function TabTempsPasses({
               <TableHead>Date</TableHead>
               <TableHead>Intervenant</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Dur\u00e9e</TableHead>
+              <TableHead>Durée</TableHead>
               <TableHead>Taux</TableHead>
               <TableHead>Montant</TableHead>
             </TableRow>
@@ -1019,12 +1019,12 @@ function TabTempsPasses({
                   <TableCell>
                     {Math.floor(e.dureeMinutes / 60)}h{String(e.dureeMinutes % 60).padStart(2, "0")}
                   </TableCell>
-                  <TableCell>{e.tauxHoraire} \u20ac/h</TableCell>
+                  <TableCell>{e.tauxHoraire} €/h</TableCell>
                   <TableCell className="font-medium">
                     {((e.dureeMinutes / 60) * e.tauxHoraire).toLocaleString("fr-FR", {
                       minimumFractionDigits: 2,
                     })}{" "}
-                    \u20ac
+                    €
                   </TableCell>
                 </TableRow>
               ))
@@ -1036,7 +1036,7 @@ function TabTempsPasses({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Ajouter du temps pass\u00e9</DialogTitle>
+            <DialogTitle>Ajouter du temps passé</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -1048,7 +1048,7 @@ function TabTempsPasses({
               />
             </div>
             <div className="grid gap-2">
-              <Label>Dur\u00e9e (minutes) *</Label>
+              <Label>Durée (minutes) *</Label>
               <Input
                 type="number"
                 value={dureeMinutes}
@@ -1061,11 +1061,11 @@ function TabTempsPasses({
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description de l'activit\u00e9"
+                placeholder="Description de l'activité"
               />
             </div>
             <div className="grid gap-2">
-              <Label>Taux horaire (\u20ac/h) *</Label>
+              <Label>Taux horaire (€/h) *</Label>
               <Input
                 type="number"
                 value={tauxHoraire}
@@ -1114,7 +1114,7 @@ function TabCorporate({ dossierId }: { dossierId: Id<"dossiers"> }) {
     try {
       await updateExt({ id: ext!._id, [field]: value } as Parameters<typeof updateExt>[0]);
     } catch {
-      toast.error("Erreur lors de la mise \u00e0 jour");
+      toast.error("Erreur lors de la mise à jour");
     }
   }
 
@@ -1122,17 +1122,17 @@ function TabCorporate({ dossierId }: { dossierId: Id<"dossiers"> }) {
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Op\u00e9ration corporate</CardTitle>
+          <CardTitle>Opération corporate</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
-            <Label>Type d&apos;op\u00e9ration</Label>
+            <Label>Type d&apos;opération</Label>
             <Select
               value={ext.typeOperation || ""}
               onValueChange={(val) => handleUpdate("typeOperation", val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="S\u00e9lectionner" />
+                <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
               <SelectContent>
                 {TYPES_OPERATIONS_CORPORATE.map((t) => (
@@ -1153,7 +1153,7 @@ function TabCorporate({ dossierId }: { dossierId: Id<"dossiers"> }) {
             />
           </div>
           <div className="grid gap-2">
-            <Label>Date d\u00e9p\u00f4t greffe</Label>
+            <Label>Date dépôt greffe</Label>
             <Input
               type="date"
               value={ext.dateDepotGreffe ?? ""}
@@ -1193,7 +1193,7 @@ function TabCorporate({ dossierId }: { dossierId: Id<"dossiers"> }) {
               </label>
             ))}
             {(!ext.checklist || ext.checklist.length === 0) && (
-              <p className="text-sm text-muted-foreground">Aucun \u00e9l\u00e9ment dans la checklist</p>
+              <p className="text-sm text-muted-foreground">Aucun élément dans la checklist</p>
             )}
           </div>
         </CardContent>
@@ -1212,7 +1212,7 @@ function TabLitige({ dossierId }: { dossierId: Id<"dossiers"> }) {
     try {
       await updateExt({ id: ext!._id, [field]: value } as Parameters<typeof updateExt>[0]);
     } catch {
-      toast.error("Erreur lors de la mise \u00e0 jour");
+      toast.error("Erreur lors de la mise à jour");
     }
   }
 
@@ -1220,17 +1220,17 @@ function TabLitige({ dossierId }: { dossierId: Id<"dossiers"> }) {
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Proc\u00e9dure</CardTitle>
+          <CardTitle>Procédure</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
-            <Label>Type de proc\u00e9dure</Label>
+            <Label>Type de procédure</Label>
             <Select
               value={ext.typeProcedure || ""}
               onValueChange={(val) => handleUpdate("typeProcedure", val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="S\u00e9lectionner" />
+                <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
               <SelectContent>
                 {TYPES_PROCEDURES_LITIGE.map((t) => (
@@ -1256,7 +1256,7 @@ function TabLitige({ dossierId }: { dossierId: Id<"dossiers"> }) {
             />
           </div>
           <div className="grid gap-2">
-            <Label>Num\u00e9ro RG</Label>
+            <Label>Numéro RG</Label>
             <Input
               value={ext.numeroRG ?? ""}
               onChange={(e) => handleUpdate("numeroRG", e.target.value)}
@@ -1285,7 +1285,7 @@ function TabLitige({ dossierId }: { dossierId: Id<"dossiers"> }) {
             />
           </div>
           <div className="grid gap-2">
-            <Label>Coordonn\u00e9es adverse</Label>
+            <Label>Coordonnées adverse</Label>
             <Input
               value={ext.coordonneesAdverse ?? ""}
               onChange={(e) => handleUpdate("coordonneesAdverse", e.target.value)}
@@ -1297,16 +1297,16 @@ function TabLitige({ dossierId }: { dossierId: Id<"dossiers"> }) {
       {/* Conclusions */}
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle>Conclusions \u00e9chang\u00e9es</CardTitle>
+          <CardTitle>Conclusions échangées</CardTitle>
         </CardHeader>
         <CardContent>
           {ext.conclusionsEchangees && ext.conclusionsEchangees.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>N\u00b0</TableHead>
+                  <TableHead>N°</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Date de d\u00e9p\u00f4t</TableHead>
+                  <TableHead>Date de dépôt</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1320,7 +1320,7 @@ function TabLitige({ dossierId }: { dossierId: Id<"dossiers"> }) {
               </TableBody>
             </Table>
           ) : (
-            <p className="text-sm text-muted-foreground">Aucune conclusion \u00e9chang\u00e9e</p>
+            <p className="text-sm text-muted-foreground">Aucune conclusion échangée</p>
           )}
         </CardContent>
       </Card>
@@ -1338,7 +1338,7 @@ function TabFiscal({ dossierId }: { dossierId: Id<"dossiers"> }) {
     try {
       await updateExt({ id: ext!._id, [field]: value } as Parameters<typeof updateExt>[0]);
     } catch {
-      toast.error("Erreur lors de la mise \u00e0 jour");
+      toast.error("Erreur lors de la mise à jour");
     }
   }
 
@@ -1356,7 +1356,7 @@ function TabFiscal({ dossierId }: { dossierId: Id<"dossiers"> }) {
               onValueChange={(val) => handleUpdate("typeMission", val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="S\u00e9lectionner" />
+                <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
               <SelectContent>
                 {TYPES_MISSIONS_FISCAL.map((t) => (
@@ -1368,14 +1368,14 @@ function TabFiscal({ dossierId }: { dossierId: Id<"dossiers"> }) {
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label>R\u00e9gime</Label>
+            <Label>Régime</Label>
             <Input
               value={ext.regime ?? ""}
               onChange={(e) => handleUpdate("regime", e.target.value)}
             />
           </div>
           <div className="grid gap-2">
-            <Label>Montant en jeu (\u20ac)</Label>
+            <Label>Montant en jeu (€)</Label>
             <Input
               type="number"
               value={ext.montantEnJeu ?? ""}
@@ -1414,7 +1414,7 @@ function TabFiscal({ dossierId }: { dossierId: Id<"dossiers"> }) {
               </TableBody>
             </Table>
           ) : (
-            <p className="text-sm text-muted-foreground">Aucun \u00e9l\u00e9ment dans le calendrier fiscal</p>
+            <p className="text-sm text-muted-foreground">Aucun élément dans le calendrier fiscal</p>
           )}
         </CardContent>
       </Card>
@@ -1451,17 +1451,17 @@ function TabIA({ dossierId }: { dossierId: Id<"dossiers"> }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="size-5" />
-            R\u00e9diger un document
+            Rédiger un document
           </CardTitle>
           <CardDescription>
-            Utilisez l&apos;IA pour g\u00e9n\u00e9rer un brouillon de document
+            Utilisez l&apos;IA pour générer un brouillon de document
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Link href={`/ia?dossierId=${dossierId}&action=redaction`}>
             <Button>
               <Edit className="mr-2 size-4" />
-              R\u00e9diger un document
+              Rédiger un document
             </Button>
           </Link>
         </CardContent>

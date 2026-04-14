@@ -5,8 +5,10 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { FORMES_JURIDIQUES, SPECIALITES } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USERS } from "@/lib/demo-data";
 import { toast } from "sonner";
 
+import { CompanySearch } from "@/components/clients/company-search";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,7 +33,8 @@ interface ClientFormProps {
 export function ClientForm({ client, onClose }: ClientFormProps) {
   const createClient = useMutation(api.clients.create);
   const updateClient = useMutation(api.clients.update);
-  const users = useQuery(api.users.list, {});
+  const convexUsers = useQuery(api.users.list, DEMO_MODE ? "skip" : {});
+  const users = DEMO_MODE ? DEMO_USERS : convexUsers;
 
   const [type, setType] = useState<"personne_morale" | "personne_physique">(
     client?.type ?? "personne_morale"
@@ -89,7 +92,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!denomination.trim()) {
-      toast.error("La d\u00e9nomination est requise.");
+      toast.error("La dénomination est requise.");
       return;
     }
 
@@ -116,12 +119,14 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
         specialites: specialites.length > 0 ? specialites : undefined,
       };
 
-      if (client) {
+      if (DEMO_MODE) {
+        toast.success(client ? "Client mis à jour (démo)." : "Client créé (démo).");
+      } else if (client) {
         await updateClient({ id: client._id, ...data });
-        toast.success("Client mis \u00e0 jour avec succ\u00e8s.");
+        toast.success("Client mis à jour avec succès.");
       } else {
         await createClient(data);
-        toast.success("Client cr\u00e9\u00e9 avec succ\u00e8s.");
+        toast.success("Client créé avec succès.");
       }
       onClose();
     } catch (error) {
@@ -154,26 +159,41 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
         </Select>
       </div>
 
-      {/* Denomination */}
+      {/* Denomination — avec auto-complétion entreprise */}
       <div className="flex flex-col gap-1.5">
-        <Label>D\u00e9nomination *</Label>
-        <Input
-          value={denomination}
-          onChange={(e) => setDenomination(e.target.value)}
-          placeholder="Raison sociale ou nom complet"
-          required
-        />
+        <Label>Dénomination *</Label>
+        {type === "personne_morale" ? (
+          <CompanySearch
+            initialValue={denomination}
+            onSelect={(company) => {
+              setDenomination(company.denomination);
+              if (company.siren) setSiren(company.siren);
+              if (company.formeJuridique) setFormeJuridique(company.formeJuridique);
+              if (company.siegeSocial) setSiegeSocial(company.siegeSocial);
+              if (company.dateCreation) setDateCreation(company.dateCreation);
+              if (company.dirigeants) setDirigeants(company.dirigeants);
+              if (company.secteurActivite) setSecteurActivite(company.secteurActivite);
+            }}
+          />
+        ) : (
+          <Input
+            value={denomination}
+            onChange={(e) => setDenomination(e.target.value)}
+            placeholder="Nom complet"
+            required
+          />
+        )}
       </div>
 
       {/* Prenom / Nom (for personne physique) */}
       {type === "personne_physique" && (
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label>Pr\u00e9nom</Label>
+            <Label>Prénom</Label>
             <Input
               value={prenom}
               onChange={(e) => setPrenom(e.target.value)}
-              placeholder="Pr\u00e9nom"
+              placeholder="Prénom"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -193,7 +213,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
           <Label>Forme juridique</Label>
           <Select value={formeJuridique} onValueChange={(val) => val !== null && setFormeJuridique(val)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="S\u00e9lectionner..." />
+              <SelectValue placeholder="Sélectionner..." />
             </SelectTrigger>
             <SelectContent>
               {FORMES_JURIDIQUES.map((fj) => (
@@ -228,11 +248,11 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
 
       {/* Siege social */}
       <div className="flex flex-col gap-1.5">
-        <Label>Si\u00e8ge social</Label>
+        <Label>Siège social</Label>
         <Input
           value={siegeSocial}
           onChange={(e) => setSiegeSocial(e.target.value)}
-          placeholder="Adresse du si\u00e8ge"
+          placeholder="Adresse du siège"
         />
       </div>
 
@@ -244,7 +264,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
             <Input
               value={capitalSocial}
               onChange={(e) => setCapitalSocial(e.target.value)}
-              placeholder="10 000 \u20ac"
+              placeholder="10 000 €"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -261,7 +281,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
       {/* Secteur / Date creation */}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label>Secteur d'activit\u00e9</Label>
+          <Label>Secteur d'activité</Label>
           <Input
             value={secteurActivite}
             onChange={(e) => setSecteurActivite(e.target.value)}
@@ -269,7 +289,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label>Date de cr\u00e9ation</Label>
+          <Label>Date de création</Label>
           <Input
             type="date"
             value={dateCreation}
@@ -280,10 +300,10 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
 
       {/* Avocat referent */}
       <div className="flex flex-col gap-1.5">
-        <Label>Avocat r\u00e9f\u00e9rent</Label>
+        <Label>Avocat référent</Label>
         <Select value={avocatReferentId} onValueChange={(val) => val !== null && setAvocatReferentId(val)}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="S\u00e9lectionner un avocat" />
+            <SelectValue placeholder="Sélectionner un avocat" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">Aucun</SelectItem>
@@ -300,7 +320,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
 
       {/* Specialites (multi-select via checkboxes) */}
       <div className="flex flex-col gap-1.5">
-        <Label>Sp\u00e9cialit\u00e9s</Label>
+        <Label>Spécialités</Label>
         <div className="flex flex-wrap gap-2">
           {(Object.entries(SPECIALITES) as [SpecialiteKey, string][]).map(
             ([key, label]) => (
@@ -371,8 +391,8 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
           {loading
             ? "Enregistrement..."
             : client
-              ? "Mettre \u00e0 jour"
-              : "Cr\u00e9er le client"}
+              ? "Mettre à jour"
+              : "Créer le client"}
         </Button>
       </div>
     </form>

@@ -77,7 +77,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
       });
       toast.success(`Facture ${label}`);
     } catch (error) {
-      toast.error("Erreur lors de la mise \u00e0 jour du statut");
+      toast.error("Erreur lors de la mise à jour du statut");
     }
   }
 
@@ -90,7 +90,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
         niveau: nextNiveau,
         type: nextNiveau <= 1 ? "email" : nextNiveau <= 2 ? "courrier" : "mise_en_demeure",
       });
-      toast.success(`Relance niveau ${nextNiveau} enregistr\u00e9e`);
+      toast.success(`Relance niveau ${nextNiveau} enregistrée`);
     } catch (error) {
       toast.error("Erreur lors de l'ajout de la relance");
     }
@@ -101,7 +101,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
       {/* Infos principales */}
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div>
-          <p className="text-muted-foreground">Num\u00e9ro</p>
+          <p className="text-muted-foreground">Numéro</p>
           <p className="font-medium">{facture.numero}</p>
         </div>
         <div>
@@ -109,11 +109,11 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
           <p className="font-medium">{clientName}</p>
         </div>
         <div>
-          <p className="text-muted-foreground">Date d'\u00e9mission</p>
+          <p className="text-muted-foreground">Date d'émission</p>
           <p className="font-medium">{facture.dateEmission}</p>
         </div>
         <div>
-          <p className="text-muted-foreground">\u00c9ch\u00e9ance</p>
+          <p className="text-muted-foreground">Échéance</p>
           <p className="font-medium">{facture.dateEcheance}</p>
         </div>
         <div>
@@ -141,7 +141,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
         </div>
         {facture.acomptesDeduits ? (
           <div className="col-span-2">
-            <p className="text-muted-foreground">Acomptes d\u00e9duits</p>
+            <p className="text-muted-foreground">Acomptes déduits</p>
             <p className="font-medium">{formatMontant(facture.acomptesDeduits)}</p>
           </div>
         ) : null}
@@ -177,7 +177,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
           {facture.statut === "en_attente" && isAssocie && (
             <Button
               size="sm"
-              onClick={() => handleUpdateStatut("validee", "valid\u00e9e")}
+              onClick={() => handleUpdateStatut("validee", "validée")}
             >
               <CheckCircle className="mr-1 size-3" />
               Valider
@@ -187,10 +187,10 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
           {facture.statut === "validee" && (
             <Button
               size="sm"
-              onClick={() => handleUpdateStatut("envoyee", "marqu\u00e9e envoy\u00e9e")}
+              onClick={() => handleUpdateStatut("envoyee", "marquée envoyée")}
             >
               <Send className="mr-1 size-3" />
-              Marquer envoy\u00e9e
+              Marquer envoyée
             </Button>
           )}
 
@@ -200,7 +200,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
                 size="sm"
                 variant="outline"
                 onClick={() =>
-                  handleUpdateStatut("payee_partiellement", "pay\u00e9e partiellement")
+                  handleUpdateStatut("payee_partiellement", "payée partiellement")
                 }
               >
                 <Clock className="mr-1 size-3" />
@@ -208,7 +208,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
               </Button>
               <Button
                 size="sm"
-                onClick={() => handleUpdateStatut("payee", "pay\u00e9e")}
+                onClick={() => handleUpdateStatut("payee", "payée")}
               >
                 <CheckCircle className="mr-1 size-3" />
                 Paiement total
@@ -224,10 +224,10 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
               </Button>
               <Button
                 size="sm"
-                onClick={() => handleUpdateStatut("payee", "pay\u00e9e")}
+                onClick={() => handleUpdateStatut("payee", "payée")}
               >
                 <CheckCircle className="mr-1 size-3" />
-                Paiement re\u00e7u
+                Paiement reçu
               </Button>
             </>
           )}
@@ -236,7 +236,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
             <Button
               size="sm"
               variant="destructive"
-              onClick={() => handleUpdateStatut("annulee", "annul\u00e9e")}
+              onClick={() => handleUpdateStatut("annulee", "annulée")}
             >
               <Ban className="mr-1 size-3" />
               Annuler

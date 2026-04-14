@@ -7,6 +7,7 @@ import { useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@/convex/_generated/api";
 import { ROLES } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USER } from "@/lib/demo-data";
 import {
   LayoutDashboard,
   Users,
@@ -157,7 +158,7 @@ function NavContent({
           onClick={onSignOut}
         >
           <LogOut className="size-4" />
-          Deconnexion
+          Déconnexion
         </Button>
       </div>
     </div>
@@ -165,12 +166,17 @@ function NavContent({
 }
 
 export function Sidebar() {
-  const user = useQuery(api.users.me);
+  const convexUser = useQuery(api.users.me, DEMO_MODE ? "skip" : {});
+  const user = DEMO_MODE ? DEMO_USER : convexUser;
   const { signOut } = useAuthActions();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   async function handleSignOut() {
+    if (DEMO_MODE) {
+      router.push("/login");
+      return;
+    }
     await signOut();
     router.push("/login");
   }

@@ -86,7 +86,7 @@ export default function ClientDetailPage() {
             {client.type === "personne_morale"
               ? "Personne morale"
               : "Personne physique"}
-            {client.formeJuridique && ` \u2014 ${client.formeJuridique}`}
+            {client.formeJuridique && ` — ${client.formeJuridique}`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -129,35 +129,35 @@ export default function ClientDetailPage() {
         <TabsContent value="informations">
           <Card>
             <CardHeader>
-              <CardTitle>Informations g\u00e9n\u00e9rales</CardTitle>
+              <CardTitle>Informations générales</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-                <InfoItem label="D\u00e9nomination" value={client.denomination} />
+                <InfoItem label="Dénomination" value={client.denomination} />
                 {client.type === "personne_physique" && (
                   <>
-                    <InfoItem label="Pr\u00e9nom" value={client.prenom} />
+                    <InfoItem label="Prénom" value={client.prenom} />
                     <InfoItem label="Nom" value={client.nom} />
                   </>
                 )}
                 <InfoItem label="Forme juridique" value={client.formeJuridique} />
                 <InfoItem label="SIREN" value={client.siren} />
                 <InfoItem label="SIRET" value={client.siret} />
-                <InfoItem label="Si\u00e8ge social" value={client.siegeSocial} />
+                <InfoItem label="Siège social" value={client.siegeSocial} />
                 <InfoItem label="Capital social" value={client.capitalSocial} />
                 <InfoItem label="Dirigeants" value={client.dirigeants} />
                 <InfoItem
-                  label="Secteur d'activit\u00e9"
+                  label="Secteur d'activité"
                   value={client.secteurActivite}
                 />
-                <InfoItem label="Date de cr\u00e9ation" value={client.dateCreation} />
+                <InfoItem label="Date de création" value={client.dateCreation} />
                 <InfoItem
-                  label="Avocat r\u00e9f\u00e9rent"
+                  label="Avocat référent"
                   value={avocatReferent?.name}
                 />
                 <div className="flex flex-col gap-1">
                   <dt className="text-sm text-muted-foreground">
-                    Sp\u00e9cialit\u00e9s
+                    Spécialités
                   </dt>
                   <dd className="flex flex-wrap gap-1">
                     {client.specialites?.length ? (
@@ -167,7 +167,7 @@ export default function ClientDetailPage() {
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-muted-foreground">\u2014</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </dd>
                 </div>
@@ -181,7 +181,7 @@ export default function ClientDetailPage() {
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-muted-foreground">\u2014</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </dd>
                 </div>
@@ -241,7 +241,7 @@ export default function ClientDetailPage() {
                     <TableRow>
                       <TableHead>Nom</TableHead>
                       <TableHead>Poste</TableHead>
-                      <TableHead>T\u00e9l\u00e9phone</TableHead>
+                      <TableHead>Téléphone</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Principal</TableHead>
                     </TableRow>
@@ -252,9 +252,9 @@ export default function ClientDetailPage() {
                         <TableCell className="font-medium">
                           {c.prenom} {c.nom}
                         </TableCell>
-                        <TableCell>{c.poste ?? "\u2014"}</TableCell>
-                        <TableCell>{c.telephone ?? "\u2014"}</TableCell>
-                        <TableCell>{c.email ?? "\u2014"}</TableCell>
+                        <TableCell>{c.poste ?? "—"}</TableCell>
+                        <TableCell>{c.telephone ?? "—"}</TableCell>
+                        <TableCell>{c.email ?? "—"}</TableCell>
                         <TableCell>
                           {c.isPrincipal && (
                             <Badge variant="default">Principal</Badge>
@@ -288,9 +288,9 @@ export default function ClientDetailPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>R\u00e9f\u00e9rence</TableHead>
-                      <TableHead>Intitul\u00e9</TableHead>
-                      <TableHead>Sp\u00e9cialit\u00e9</TableHead>
+                      <TableHead>Référence</TableHead>
+                      <TableHead>Intitulé</TableHead>
+                      <TableHead>Spécialité</TableHead>
                       <TableHead>Statut</TableHead>
                       <TableHead>Date ouverture</TableHead>
                     </TableRow>
@@ -345,7 +345,7 @@ export default function ClientDetailPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Description</TableHead>
-                      <TableHead>Sp\u00e9cialit\u00e9</TableHead>
+                      <TableHead>Spécialité</TableHead>
                       <TableHead>Mode</TableHead>
                       <TableHead>Statut</TableHead>
                     </TableRow>
@@ -368,7 +368,7 @@ export default function ClientDetailPage() {
                           <TableCell>
                             {p.modeFacturation === "forfait"
                               ? "Forfait"
-                              : "Temps pass\u00e9"}
+                              : "Temps passé"}
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline">{statutLabel}</Badge>
@@ -402,11 +402,11 @@ export default function ClientDetailPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Num\u00e9ro</TableHead>
+                      <TableHead>Numéro</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Montant TTC</TableHead>
                       <TableHead>Statut</TableHead>
-                      <TableHead>\u00c9ch\u00e9ance</TableHead>
+                      <TableHead>Échéance</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -446,7 +446,7 @@ export default function ClientDetailPage() {
         <TabsContent value="historique">
           <Card>
             <CardHeader>
-              <CardTitle>Historique d'activit\u00e9</CardTitle>
+              <CardTitle>Historique d'activité</CardTitle>
             </CardHeader>
             <CardContent>
               {activites === undefined ? (
@@ -455,7 +455,7 @@ export default function ClientDetailPage() {
                 </p>
               ) : activites.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  Aucune activit\u00e9 enregistr\u00e9e.
+                  Aucune activité enregistrée.
                 </p>
               ) : (
                 <div className="flex flex-col gap-3">
@@ -503,7 +503,7 @@ function InfoItem({
   return (
     <div className="flex flex-col gap-0.5">
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-medium">{value || "\u2014"}</dd>
+      <dd className="text-sm font-medium">{value || "—"}</dd>
     </div>
   );
 }
@@ -527,7 +527,7 @@ function ContactForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nom.trim() || !prenom.trim()) {
-      toast.error("Le nom et le pr\u00e9nom sont requis.");
+      toast.error("Le nom et le prénom sont requis.");
       return;
     }
     setLoading(true);
@@ -541,7 +541,7 @@ function ContactForm({
         email: email || undefined,
         isPrincipal,
       });
-      toast.success("Contact ajout\u00e9 avec succ\u00e8s.");
+      toast.success("Contact ajouté avec succès.");
       onClose();
     } catch (error) {
       toast.error(
@@ -556,7 +556,7 @@ function ContactForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label>Pr\u00e9nom *</Label>
+          <Label>Prénom *</Label>
           <Input
             value={prenom}
             onChange={(e) => setPrenom(e.target.value)}
@@ -581,7 +581,7 @@ function ContactForm({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label>T\u00e9l\u00e9phone</Label>
+          <Label>Téléphone</Label>
           <Input
             value={telephone}
             onChange={(e) => setTelephone(e.target.value)}
