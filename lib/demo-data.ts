@@ -1,5 +1,5 @@
 // Demo mode — fake data for testing UI without Convex auth
-export const DEMO_MODE = true;
+export const DEMO_MODE = false;
 
 export const DEMO_USER = {
   _id: "demo_user_1" as any,

@@ -1,16 +1,15 @@
 import { QueryCtx, MutationCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export type Role = "associe" | "collaborateur" | "secretaire" | "stagiaire";
 
 export async function getCurrentUser(ctx: QueryCtx) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) return null;
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_email", (q) => q.eq("email", identity.email!))
-    .first();
-  return user;
+  // Convex Auth stocke l'_id utilisateur dans la session ; c'est la source
+  // de vérité la plus fiable (plus sûr que de requêter par email).
+  const userId = await getAuthUserId(ctx);
+  if (!userId) return null;
+  return await ctx.db.get(userId);
 }
 
 export async function requireUser(ctx: QueryCtx) {

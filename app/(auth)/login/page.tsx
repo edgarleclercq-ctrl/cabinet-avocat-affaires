@@ -21,8 +21,10 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -30,10 +32,22 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signIn("password", { email, password, flow: "signIn" });
+      // Le `name` est lu par le callback `profile` dans convex/auth.ts
+      // pour alimenter la table `users` (champ requis du schéma).
+      await signIn("password", {
+        email,
+        password,
+        flow: mode,
+        name: mode === "signUp" ? name.trim() : undefined,
+      });
+
       router.push("/dashboard");
-    } catch {
-      setError("Identifiants incorrects. Veuillez réessayer.");
+    } catch (err: any) {
+      if (mode === "signIn") {
+        setError("Identifiants incorrects. Veuillez réessayer.");
+      } else {
+        setError("Erreur lors de l'inscription. Ce compte existe peut-être déjà.");
+      }
     } finally {
       setLoading(false);
     }
@@ -60,14 +74,32 @@ export default function LoginPage() {
         <Card className="rounded-none border-[#E5E2DC] bg-white shadow-xl">
           <CardHeader className="pb-4">
             <CardTitle className="font-heading text-lg font-normal uppercase tracking-wider text-[#001025]">
-              Connexion
+              {mode === "signIn" ? "Connexion" : "Inscription"}
             </CardTitle>
             <CardDescription className="text-[#6B7280]">
-              Accédez à votre espace de travail
+              {mode === "signIn"
+                ? "Accédez à votre espace de travail"
+                : "Créez votre compte associé"}
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="flex flex-col gap-4">
+              {mode === "signUp" && (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="name" className="text-xs uppercase tracking-wider text-[#6B7280]">
+                    Nom complet
+                  </Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Maître Dupont"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="rounded-none border-[#E5E2DC] focus-visible:ring-[#BF9874]"
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="email" className="text-xs uppercase tracking-wider text-[#6B7280]">
                   Adresse email
@@ -94,7 +126,8 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  autoComplete="current-password"
+                  minLength={6}
+                  autoComplete={mode === "signIn" ? "current-password" : "new-password"}
                   className="rounded-none border-[#E5E2DC] focus-visible:ring-[#BF9874]"
                 />
               </div>
@@ -102,13 +135,27 @@ export default function LoginPage() {
                 <p className="text-sm text-destructive">{error}</p>
               )}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-3">
               <Button
                 className="w-full rounded-none border border-[#BF9874] bg-[#BF9874] text-sm font-medium uppercase tracking-wider text-[#001025] hover:bg-[#BF9874]/90"
                 disabled={loading}
               >
-                {loading ? "Connexion en cours..." : "Se connecter"}
+                {loading
+                  ? (mode === "signIn" ? "Connexion..." : "Inscription...")
+                  : (mode === "signIn" ? "Se connecter" : "Créer le compte")}
               </Button>
+              <button
+                type="button"
+                className="text-xs text-[#6B7280] hover:text-[#BF9874] transition-colors"
+                onClick={() => {
+                  setMode(mode === "signIn" ? "signUp" : "signIn");
+                  setError("");
+                }}
+              >
+                {mode === "signIn"
+                  ? "Première connexion ? Créer un compte"
+                  : "Déjà un compte ? Se connecter"}
+              </button>
             </CardFooter>
           </form>
         </Card>
