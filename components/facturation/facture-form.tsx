@@ -1,10 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
+import {
+  DEMO_MODE,
+  DEMO_CLIENTS,
+  DEMO_DOSSIERS,
+} from "@/lib/demo-data";
+import {
+  demoFacturesStore,
+  useDemoAddedClients,
+  useDemoAddedDossiers,
+} from "@/lib/demo-store";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,11 +48,26 @@ export function FactureForm({
   const [acomptesDeduits, setAcomptesDeduits] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  const clients = useQuery(api.clients.list, {});
-  const dossiers = useQuery(
+  const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
+  const convexDossiers = useQuery(
     api.dossiers.list,
-    clientId ? { clientId: clientId as Id<"clients"> } : "skip"
+    DEMO_MODE
+      ? "skip"
+      : clientId
+        ? { clientId: clientId as Id<"clients"> }
+        : "skip"
   );
+
+  const addedDemoClients = useDemoAddedClients();
+  const addedDemoDossiers = useDemoAddedDossiers();
+  const clients = DEMO_MODE
+    ? [...addedDemoClients, ...DEMO_CLIENTS]
+    : convexClients;
+  const dossiers = DEMO_MODE
+    ? [...addedDemoDossiers, ...DEMO_DOSSIERS].filter(
+        (d: any) => !clientId || d.clientId === clientId
+      )
+    : convexDossiers;
 
   const createFacture = useMutation(api.factures.create);
 
@@ -68,6 +93,38 @@ export function FactureForm({
     }
 
     setLoading(true);
+
+    // Mode démo : pas d'appel Convex, on stocke localement
+    if (DEMO_MODE) {
+      try {
+        const year = new Date().getFullYear();
+        const seq = String(Date.now()).slice(-4);
+        const newFacture = {
+          _id: `demo_facture_${Date.now()}` as Id<"factures">,
+          _creationTime: Date.now(),
+          numero: `FAC-${year}-${seq}`,
+          clientId: clientId as Id<"clients">,
+          dossierId: dossierId ? (dossierId as Id<"dossiers">) : undefined,
+          description,
+          montantHT,
+          tva,
+          montantTTC: Math.round(montantTTC * 100) / 100,
+          statut: "brouillon" as const,
+          dateEmission: new Date().toISOString().split("T")[0],
+          dateEcheance,
+          acomptesDeduits: acomptesDeduits
+            ? parseFloat(acomptesDeduits)
+            : undefined,
+        };
+        demoFacturesStore.add(newFacture);
+        toast.success("Facture créée (démo)");
+        onClose();
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       await createFacture({
         clientId: clientId as Id<"clients">,

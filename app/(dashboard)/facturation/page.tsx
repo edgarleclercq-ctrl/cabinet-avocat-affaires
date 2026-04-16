@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { STATUTS_FACTURE } from "@/lib/constants";
 import { DEMO_MODE, DEMO_USER, DEMO_FACTURES, DEMO_FACTURE_STATS, DEMO_CLIENTS } from "@/lib/demo-data";
+import { useDemoAddedClients, useDemoAddedFactures } from "@/lib/demo-store";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -72,9 +73,51 @@ export default function FacturationPage() {
   const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
 
   const me = DEMO_MODE ? DEMO_USER : convexMe;
-  const stats = DEMO_MODE ? DEMO_FACTURE_STATS : convexStats;
-  const factures = DEMO_MODE ? DEMO_FACTURES : convexFactures;
-  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
+  const addedDemoFactures = useDemoAddedFactures();
+  const addedDemoClients = useDemoAddedClients();
+
+  const allDemoFactures = DEMO_MODE
+    ? [...addedDemoFactures, ...DEMO_FACTURES]
+    : [];
+
+  // Stats recalculées en mode démo pour inclure les factures ajoutées
+  const computedDemoStats = DEMO_MODE
+    ? (() => {
+        const emis = allDemoFactures.reduce(
+          (acc: number, f: any) => acc + (f.montantTTC || 0),
+          0
+        );
+        const encaisse = allDemoFactures
+          .filter((f: any) => f.statut === "payee")
+          .reduce((acc: number, f: any) => acc + (f.montantTTC || 0), 0);
+        const impaye = allDemoFactures
+          .filter((f: any) => f.statut === "en_retard")
+          .reduce((acc: number, f: any) => acc + (f.montantTTC || 0), 0);
+        const tauxRecouvrement = emis > 0 ? Math.round((encaisse / emis) * 100) : 0;
+        return {
+          emis,
+          encaisse,
+          impaye,
+          tauxRecouvrement,
+          totalMois: emis,
+          facturesAEmettre: allDemoFactures.filter((f: any) => f.statut === "brouillon").length,
+          relancesEnCours: allDemoFactures.filter((f: any) => f.statut === "en_retard").length,
+        };
+      })()
+    : null;
+
+  const stats = DEMO_MODE ? computedDemoStats : convexStats;
+
+  // Filtrage par statut côté client en mode démo
+  const factures = DEMO_MODE
+    ? statutFilter
+      ? allDemoFactures.filter((f: any) => f.statut === statutFilter)
+      : allDemoFactures
+    : convexFactures;
+
+  const clients = DEMO_MODE
+    ? [...addedDemoClients, ...DEMO_CLIENTS]
+    : convexClients;
 
   const clientsMap = new Map<string, string>(
     (clients ?? []).map((c: any) => [c._id, c.denomination])

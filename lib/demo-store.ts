@@ -8,6 +8,7 @@ import { useSyncExternalStore } from "react";
 
 const LS_CLIENTS = "lexicab_demo_added_clients";
 const LS_DOSSIERS = "lexicab_demo_added_dossiers";
+const LS_FACTURES = "lexicab_demo_added_factures";
 
 type Listener = () => void;
 
@@ -75,6 +76,7 @@ function createStore<T>(storageKey: string) {
 
 export const demoClientsStore = createStore<any>(LS_CLIENTS);
 export const demoDossiersStore = createStore<any>(LS_DOSSIERS);
+export const demoFacturesStore = createStore<any>(LS_FACTURES);
 
 // Snapshot serveur (SSR) : tableau vide partagé pour stabilité.
 const EMPTY_ARRAY: any[] = [];
@@ -91,6 +93,14 @@ export function useDemoAddedDossiers(): any[] {
   return useSyncExternalStore(
     demoDossiersStore.subscribe,
     demoDossiersStore.getSnapshot,
+    () => EMPTY_ARRAY
+  );
+}
+
+export function useDemoAddedFactures(): any[] {
+  return useSyncExternalStore(
+    demoFacturesStore.subscribe,
+    demoFacturesStore.getSnapshot,
     () => EMPTY_ARRAY
   );
 }
