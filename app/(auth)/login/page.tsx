@@ -34,12 +34,11 @@ export default function LoginPage() {
     try {
       // Le `name` est lu par le callback `profile` dans convex/auth.ts
       // pour alimenter la table `users` (champ requis du schéma).
-      await signIn("password", {
-        email,
-        password,
-        flow: mode,
-        name: mode === "signUp" ? name.trim() : undefined,
-      });
+      const params: Record<string, string> = { email, password, flow: mode };
+      if (mode === "signUp" && name.trim()) {
+        params.name = name.trim();
+      }
+      await signIn("password", params);
 
       router.push("/dashboard");
     } catch (err: any) {
