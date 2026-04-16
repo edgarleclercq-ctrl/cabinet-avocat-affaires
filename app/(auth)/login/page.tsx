@@ -136,6 +136,7 @@ export default function LoginPage() {
             </CardContent>
             <CardFooter className="flex flex-col gap-3">
               <Button
+                type="submit"
                 className="w-full rounded-none border border-[#BF9874] bg-[#BF9874] text-sm font-medium uppercase tracking-wider text-[#001025] hover:bg-[#BF9874]/90"
                 disabled={loading}
               >
