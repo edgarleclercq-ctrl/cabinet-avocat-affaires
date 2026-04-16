@@ -1,5 +1,5 @@
 // Demo mode — fake data for testing UI without Convex auth
-export const DEMO_MODE = false;
+export const DEMO_MODE = true;
 
 export const DEMO_USER = {
   _id: "demo_user_1" as any,
@@ -234,6 +234,9 @@ export const DEMO_FACTURE_STATS = {
   encaisse: 45000,
   impaye: 12500,
   tauxRecouvrement: 78,
+  totalMois: 75000,
+  facturesAEmettre: 3,
+  relancesEnCours: 2,
 };
 
 export const DEMO_FACTURES = [
