@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SPECIALITES } from "@/lib/constants";
 import { DEMO_MODE, DEMO_USERS, DEMO_CLIENTS } from "@/lib/demo-data";
+import { demoDossiersStore, useDemoAddedClients } from "@/lib/demo-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,12 @@ export function DossierForm({ onClose }: DossierFormProps) {
   const convexUsers = useQuery(api.users.list, DEMO_MODE ? "skip" : {});
   const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
   const users = DEMO_MODE ? DEMO_USERS : convexUsers;
-  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
+  // En mode démo, on fusionne les clients ajoutés (stockés localement)
+  // avec la liste initiale pour pouvoir créer un dossier sur un client fraîchement créé.
+  const addedDemoClients = useDemoAddedClients();
+  const clients = DEMO_MODE
+    ? [...addedDemoClients, ...DEMO_CLIENTS]
+    : convexClients;
 
   const createDossier = useMutation(api.dossiers.create);
   const verifyConflicts = useMutation(api.conflits.verify);
@@ -105,6 +111,56 @@ export function DossierForm({ onClose }: DossierFormProps) {
     }
 
     setIsSubmitting(true);
+
+    // Mode démo : pas d'appel Convex (auth absente), on stocke localement
+    // pour que le dossier apparaisse dans la liste côté client.
+    if (DEMO_MODE) {
+      try {
+        const prefix =
+          specialite === "corporate"
+            ? "COR"
+            : specialite === "litige"
+              ? "LIT"
+              : "FIS";
+        const year = new Date().getFullYear();
+        const seq = String(Date.now()).slice(-4);
+        const newDossier = {
+          _id: `demo_dossier_${Date.now()}` as Id<"dossiers">,
+          _creationTime: Date.now(),
+          reference: `${prefix}-${year}-${seq}`,
+          clientId: clientId as Id<"clients">,
+          specialite: specialite as "corporate" | "litige" | "fiscal",
+          intitule,
+          description: description || undefined,
+          statut:
+            specialite === "corporate"
+              ? "en_cours_redaction"
+              : specialite === "litige"
+                ? "phase_amiable"
+                : "en_cours_analyse",
+          avocatResponsableId: avocatResponsableId as Id<"users">,
+          collaborateursIds: collaborateursIds as Id<"users">[],
+          montantHonoraires: montantHonoraires
+            ? parseFloat(montantHonoraires)
+            : undefined,
+          dateOuverture: new Date().toISOString().split("T")[0],
+          partiesAdverses: partiesAdverses
+            .filter((p) => p.denomination.trim())
+            .map((p) => ({
+              denomination: p.denomination,
+              siren: p.siren || undefined,
+              avocat: p.avocat || undefined,
+              coordonnees: p.coordonnees || undefined,
+            })),
+        };
+        demoDossiersStore.add(newDossier);
+        toast.success("Dossier créé (démo)");
+        onClose();
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
 
     try {
       // Run conflict check if parties adverses exist and not forcing

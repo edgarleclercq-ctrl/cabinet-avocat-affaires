@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { FORMES_JURIDIQUES, SPECIALITES } from "@/lib/constants";
 import { DEMO_MODE, DEMO_USERS } from "@/lib/demo-data";
+import { demoClientsStore } from "@/lib/demo-store";
 import { toast } from "sonner";
 
 import { CompanySearch } from "@/components/clients/company-search";
@@ -120,6 +121,15 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
       };
 
       if (DEMO_MODE) {
+        if (!client) {
+          const newClient = {
+            ...data,
+            _id: `demo_client_${Date.now()}` as Id<"clients">,
+            _creationTime: Date.now(),
+            isActive: true,
+          };
+          demoClientsStore.add(newClient);
+        }
         toast.success(client ? "Client mis à jour (démo)." : "Client créé (démo).");
       } else if (client) {
         await updateClient({ id: client._id, ...data });

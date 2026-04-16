@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SPECIALITES, STATUTS_CORPORATE, STATUTS_LITIGE, STATUTS_FISCAL } from "@/lib/constants";
 import { DEMO_MODE, DEMO_USER, DEMO_DOSSIERS, DEMO_USERS, DEMO_CLIENTS } from "@/lib/demo-data";
+import { useDemoAddedClients, useDemoAddedDossiers } from "@/lib/demo-store";
 import {
   Card,
   CardContent,
@@ -88,8 +89,35 @@ export default function DossiersPage() {
   });
 
   const users = DEMO_MODE ? DEMO_USERS : convexUsers;
-  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
-  const dossiers = DEMO_MODE ? DEMO_DOSSIERS : convexDossiers;
+  const addedDemoClients = useDemoAddedClients();
+  const addedDemoDossiers = useDemoAddedDossiers();
+  const clients = DEMO_MODE
+    ? [...addedDemoClients, ...DEMO_CLIENTS]
+    : convexClients;
+  const allDemoDossiers = DEMO_MODE
+    ? [...addedDemoDossiers, ...DEMO_DOSSIERS]
+    : [];
+
+  // Filtrage côté client en mode démo
+  const filteredDemoDossiers = DEMO_MODE
+    ? allDemoDossiers.filter((d: any) => {
+        if (search) {
+          const s = search.toLowerCase();
+          const matches =
+            d.intitule?.toLowerCase().includes(s) ||
+            d.reference?.toLowerCase().includes(s) ||
+            d.description?.toLowerCase().includes(s);
+          if (!matches) return false;
+        }
+        if (specialite && d.specialite !== specialite) return false;
+        if (statut && d.statut !== statut) return false;
+        if (avocatResponsableId && d.avocatResponsableId !== avocatResponsableId)
+          return false;
+        return true;
+      })
+    : [];
+
+  const dossiers = DEMO_MODE ? filteredDemoDossiers : convexDossiers;
 
   const clientMap = new Map<string, string>(
     (clients ?? []).map((c: any) => [c._id, c.denomination])

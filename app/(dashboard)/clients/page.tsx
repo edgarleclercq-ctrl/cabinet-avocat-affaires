@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SPECIALITES } from "@/lib/constants";
 import { DEMO_MODE, DEMO_USER, DEMO_CLIENTS, DEMO_USERS } from "@/lib/demo-data";
+import { useDemoAddedClients } from "@/lib/demo-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -57,7 +58,30 @@ export default function ClientsPage() {
 
   const me = DEMO_MODE ? DEMO_USER : convexMe;
   const users = DEMO_MODE ? DEMO_USERS : convexUsers;
-  const clients = DEMO_MODE ? DEMO_CLIENTS : convexClients;
+  const addedDemoClients = useDemoAddedClients();
+  const allDemoClients = DEMO_MODE
+    ? [...addedDemoClients, ...DEMO_CLIENTS]
+    : [];
+
+  // Filtrage côté client en mode démo (pour respecter search/specialite/avocat)
+  const filteredDemoClients = DEMO_MODE
+    ? allDemoClients.filter((c: any) => {
+        if (search) {
+          const s = search.toLowerCase();
+          const matches =
+            c.denomination?.toLowerCase().includes(s) ||
+            c.siren?.toLowerCase().includes(s) ||
+            c.siret?.toLowerCase().includes(s);
+          if (!matches) return false;
+        }
+        if (specialite && !c.specialites?.includes(specialite)) return false;
+        if (avocatReferentId && c.avocatReferentId !== avocatReferentId)
+          return false;
+        return true;
+      })
+    : [];
+
+  const clients = DEMO_MODE ? filteredDemoClients : convexClients;
 
   const canCreate =
     me && CAN_CREATE_ROLES.includes(me.role as (typeof CAN_CREATE_ROLES)[number]);
