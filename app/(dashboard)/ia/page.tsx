@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TYPES_DOCUMENTS_IA } from "@/lib/constants";
+import { DEMO_MODE, DEMO_USER, DEMO_DOSSIERS } from "@/lib/demo-data";
+import {
+  demoAnalyseCoherence,
+  type CoherenceReport,
+} from "@/lib/demo-coherence";
 import {
   Brain,
   FileSearch,
@@ -13,7 +18,14 @@ import {
   ChevronDown,
   ChevronUp,
   Save,
+  ShieldCheck,
 } from "lucide-react";
+import {
+  CoherenceUploader,
+  type CoherenceUploaderSubmission,
+} from "@/components/ia/coherence-uploader";
+import { CoherenceReportView } from "@/components/ia/coherence-report";
+import { toast } from "sonner";
 import {
   Tabs,
   TabsContent,
@@ -527,8 +539,93 @@ function RedactionAssisteeTab() {
   );
 }
 
+/* ========================================================================
+   Onglet "Cohérence & conformité" — upload + analyse Légifrance
+   ======================================================================== */
+
+function CoherenceTab() {
+  const convexDossiers = useQuery(api.dossiers.list, DEMO_MODE ? "skip" : {});
+  const dossiers = (DEMO_MODE ? DEMO_DOSSIERS : convexDossiers) ?? [];
+  const analyserCoherence = useAction(api.ia.analyserCoherence);
+
+  const [isAnalysing, setIsAnalysing] = useState(false);
+  const [report, setReport] = useState<CoherenceReport | null>(null);
+
+  async function handleSubmit(s: CoherenceUploaderSubmission) {
+    if (!s.contenuDocument.trim()) {
+      toast.error("Aucun contenu à analyser.");
+      return;
+    }
+    setIsAnalysing(true);
+    setReport(null);
+
+    try {
+      if (DEMO_MODE) {
+        // Simule un petit délai d'analyse pour que l'UX soit crédible
+        await new Promise((r) => setTimeout(r, 800));
+        const res = demoAnalyseCoherence(
+          s.contenuDocument,
+          s.typeDocument
+        );
+        setReport(res);
+        toast.success("Analyse terminée (mode démo)");
+        return;
+      }
+
+      const res = await analyserCoherence({
+        dossierId: s.dossierId as any,
+        documentId: s.documentId ? (s.documentId as any) : undefined,
+        contenuDocument: s.contenuDocument,
+        typeDocument: s.typeDocument,
+      });
+      setReport(res as CoherenceReport);
+      toast.success("Analyse terminée");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Erreur inconnue";
+      toast.error(`Échec de l'analyse : ${msg}`);
+    } finally {
+      setIsAnalysing(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="rounded-lg border border-border-subtle bg-surface p-6">
+        <div className="mb-5 flex items-start gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-status-gold text-status-gold-fg">
+            <ShieldCheck className="size-4" />
+          </span>
+          <div className="flex flex-col gap-0.5">
+            <h2 className="font-heading text-base text-text-strong">
+              Vérification de cohérence & conformité
+            </h2>
+            <p className="text-sm text-text-muted">
+              Audit d&apos;un document juridique avec consultation automatique
+              de Légifrance pour vérifier la conformité avec le droit positif
+              et la jurisprudence établie.
+            </p>
+          </div>
+        </div>
+
+        <CoherenceUploader
+          dossiers={dossiers.map((d: any) => ({
+            _id: d._id,
+            reference: d.reference,
+            intitule: d.intitule,
+          }))}
+          onSubmit={handleSubmit}
+          isAnalysing={isAnalysing}
+        />
+      </section>
+
+      {report && <CoherenceReportView report={report} />}
+    </div>
+  );
+}
+
 export default function IAPage() {
-  const user = useQuery(api.users.me);
+  const convexUser = useQuery(api.users.me, DEMO_MODE ? "skip" : {});
+  const user = DEMO_MODE ? DEMO_USER : convexUser;
 
   if (!user) {
     return (
@@ -543,20 +640,28 @@ export default function IAPage() {
       <PageHeader
         eyebrow="Nouveau"
         title="IA Juridique"
-        subtitle="Analyse de documents et rédaction assistée par intelligence artificielle."
+        subtitle="Analyse, rédaction, et vérification de conformité avec Légifrance."
       />
 
-      <Tabs defaultValue="analyse">
+      <Tabs defaultValue="coherence">
         <TabsList>
+          <TabsTrigger value="coherence">
+            <ShieldCheck className="h-4 w-4 mr-2" />
+            Cohérence &amp; conformité
+          </TabsTrigger>
           <TabsTrigger value="analyse">
             <FileSearch className="h-4 w-4 mr-2" />
             Analyse de document
           </TabsTrigger>
           <TabsTrigger value="redaction">
             <PenTool className="h-4 w-4 mr-2" />
-            Redaction assistee
+            Rédaction assistée
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="coherence" className="mt-4">
+          <CoherenceTab />
+        </TabsContent>
 
         <TabsContent value="analyse" className="mt-4">
           <Card>

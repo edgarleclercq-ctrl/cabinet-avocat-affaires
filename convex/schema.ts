@@ -314,9 +314,78 @@ export default defineSchema({
   analyseIA: defineTable({
     documentId: v.optional(v.id("documents")),
     dossierId: v.id("dossiers"),
-    type: v.union(v.literal("analyse"), v.literal("redaction")),
+    type: v.union(
+      v.literal("analyse"),
+      v.literal("redaction"),
+      v.literal("coherence")
+    ),
     resultat: v.string(),
     prompt: v.optional(v.string()),
+    modele: v.string(),
+    createdBy: v.id("users"),
+  })
+    .index("by_dossier", ["dossierId"])
+    .index("by_document", ["documentId"]),
+
+  // ─── Analyses de cohérence (LegalPay + Légifrance) ──────
+  analysesCoherence: defineTable({
+    analyseIaId: v.id("analyseIA"),
+    dossierId: v.id("dossiers"),
+    documentId: v.optional(v.id("documents")),
+    typeDocument: v.optional(v.string()),
+    resumeExecutif: v.string(),
+    clausesCles: v.array(
+      v.object({
+        titre: v.string(),
+        contenu: v.string(),
+        references: v.array(
+          v.object({
+            type: v.union(v.literal("article"), v.literal("juri")),
+            cid: v.string(),
+            citation: v.string(),
+            url: v.optional(v.string()),
+          })
+        ),
+      })
+    ),
+    incoherencesInternes: v.array(
+      v.object({
+        clauseA: v.string(),
+        clauseB: v.string(),
+        explication: v.string(),
+        gravite: v.union(
+          v.literal("info"),
+          v.literal("attention"),
+          v.literal("critique")
+        ),
+      })
+    ),
+    nonConformites: v.array(
+      v.object({
+        clause: v.string(),
+        reglePatrimoniale: v.string(),
+        referenceCid: v.optional(v.string()),
+        referenceUrl: v.optional(v.string()),
+        explication: v.string(),
+        gravite: v.union(
+          v.literal("info"),
+          v.literal("attention"),
+          v.literal("critique")
+        ),
+      })
+    ),
+    recommandations: v.array(
+      v.object({
+        titre: v.string(),
+        description: v.string(),
+        priorite: v.union(
+          v.literal("low"),
+          v.literal("medium"),
+          v.literal("high")
+        ),
+      })
+    ),
+    sourceBackend: v.union(v.literal("real"), v.literal("mock")),
     modele: v.string(),
     createdBy: v.id("users"),
   })
@@ -437,7 +506,7 @@ export default defineSchema({
   // Stockage sécurisé des tokens Pennylane, Stripe, etc.
   // Ne JAMAIS retourner ces tokens côté client.
   integrationsTokens: defineTable({
-    provider: v.union(v.literal("pennylane")),
+    provider: v.union(v.literal("pennylane"), v.literal("legifrance")),
     accessToken: v.string(),
     refreshToken: v.string(),
     expiresAt: v.number(),
