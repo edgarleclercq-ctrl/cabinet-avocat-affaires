@@ -48,6 +48,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { FilterToolbar } from "@/components/shared/filter-toolbar";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ProgressGauge } from "@/components/shared/progress-gauge";
+import { computeEtatFinancierDossierDemo } from "@/lib/legalpay/etat-dossier";
 import { Plus, Search, LayoutGrid, TableIcon, FolderOpen } from "lucide-react";
 
 const ALL_STATUTS = [
@@ -241,47 +243,65 @@ export default function DossiersPage() {
                     <TableHead>Spécialité</TableHead>
                     <TableHead>Intitulé</TableHead>
                     <TableHead>Statut</TableHead>
+                    <TableHead className="min-w-[150px]">Provision</TableHead>
                     <TableHead>Avocat responsable</TableHead>
                     <TableHead>Ouverture</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dossiers.map((dossier) => (
-                    <TableRow key={dossier._id}>
-                      <TableCell>
-                        <Link
-                          href={`/dossiers/${dossier._id}`}
-                          className="font-mono text-xs font-medium text-text-strong transition-colors hover:text-gold"
-                        >
-                          {dossier.reference}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-text-default">
-                        {clientMap.get(dossier.clientId) ?? "—"}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          kind="specialite"
-                          value={dossier.specialite}
-                        />
-                      </TableCell>
-                      <TableCell className="max-w-[280px] truncate text-text-default">
-                        {dossier.intitule}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          kind="dossier-statut"
-                          value={dossier.statut}
-                        />
-                      </TableCell>
-                      <TableCell className="text-text-muted">
-                        {userMap.get(dossier.avocatResponsableId) ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-text-subtle">
-                        {dossier.dateOuverture}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {dossiers.map((dossier) => {
+                    const etat = computeEtatFinancierDossierDemo(
+                      dossier._id as unknown as string
+                    );
+                    return (
+                      <TableRow key={dossier._id}>
+                        <TableCell>
+                          <Link
+                            href={`/dossiers/${dossier._id}`}
+                            className="font-mono text-xs font-medium text-text-strong transition-colors hover:text-gold"
+                          >
+                            {dossier.reference}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-text-default">
+                          {clientMap.get(dossier.clientId) ?? "—"}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            kind="specialite"
+                            value={dossier.specialite}
+                          />
+                        </TableCell>
+                        <TableCell className="max-w-[240px] truncate text-text-default">
+                          {dossier.intitule}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            kind="dossier-statut"
+                            value={dossier.statut}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {etat.provisionVersee > 0 ? (
+                            <ProgressGauge
+                              value={etat.ratio ?? 0}
+                              variant="compact"
+                            />
+                          ) : (
+                            <span className="text-xs text-text-subtle">
+                              Sans provision
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-text-muted">
+                          {userMap.get(dossier.avocatResponsableId) ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-text-subtle">
+                          {dossier.dateOuverture}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}

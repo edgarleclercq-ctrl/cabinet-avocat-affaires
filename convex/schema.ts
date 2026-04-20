@@ -322,4 +322,125 @@ export default defineSchema({
   })
     .index("by_dossier", ["dossierId"])
     .index("by_document", ["documentId"]),
+
+  // ═════════════════════════════════════════════════════════════════════
+  // LegalPay — socle déontologique (CARPA, conventions, provisions)
+  // Référence : art. P.75.1, P.75.2 RIBP ; art. 6.2, 11.2 RIN
+  // ═════════════════════════════════════════════════════════════════════
+
+  // ─── Conventions d'honoraires (art. 6.2 RIN) ────────────
+  conventions: defineTable({
+    dossierId: v.id("dossiers"),
+    type: v.union(
+      v.literal("forfait"),
+      v.literal("tempsPasse"),
+      v.literal("mixte")
+    ),
+    statut: v.union(
+      v.literal("brouillon"),
+      v.literal("envoyee"),
+      v.literal("signee"),
+      v.literal("resiliee")
+    ),
+    storageIdPdf: v.optional(v.id("_storage")),
+    signedAt: v.optional(v.number()),
+    montantForfait: v.optional(v.number()),
+    tauxHoraire: v.optional(v.number()),
+    plafond: v.optional(v.number()),
+  })
+    .index("by_dossier", ["dossierId"])
+    .index("by_statut", ["statut"]),
+
+  // ─── Sous-comptes CARPA (art. 12 décret 2005) ───────────
+  sousComptesCARPA: defineTable({
+    dossierId: v.id("dossiers"),
+    numero: v.string(),
+    solde: v.number(), // dénormalisé, recalculé à chaque mutation
+  })
+    .index("by_dossier", ["dossierId"])
+    .index("by_numero", ["numero"]),
+
+  // ─── Provisions versées par le client ───────────────────
+  provisions: defineTable({
+    dossierId: v.id("dossiers"),
+    sousCompteCarpaId: v.id("sousComptesCARPA"),
+    montant: v.number(),
+    dateVersement: v.string(),
+    statut: v.union(v.literal("attendue"), v.literal("recue")),
+    storageIdJustificatif: v.optional(v.id("_storage")),
+  })
+    .index("by_dossier", ["dossierId"])
+    .index("by_sousCompte", ["sousCompteCarpaId"])
+    .index("by_statut", ["statut"]),
+
+  // ─── Notes d'honoraires (art. 11.2 RIN) ─────────────────
+  notesHonoraires: defineTable({
+    dossierId: v.id("dossiers"),
+    conventionId: v.id("conventions"),
+    numero: v.string(),
+    montantHT: v.number(),
+    tva: v.number(),
+    montantTTC: v.number(),
+    dateEmission: v.string(),
+    dateEcheance: v.string(),
+    datePaiement: v.optional(v.string()),
+    statut: v.union(
+      v.literal("brouillon"),
+      v.literal("validee"),
+      v.literal("envoyee"),
+      v.literal("payee_partiellement"),
+      v.literal("payee"),
+      v.literal("en_retard"),
+      v.literal("contestee")
+    ),
+    createdBy: v.id("users"),
+  })
+    .index("by_dossier", ["dossierId"])
+    .index("by_convention", ["conventionId"])
+    .index("by_statut", ["statut"])
+    .index("by_numero", ["numero"]),
+
+  // ─── Mouvements CARPA ───────────────────────────────────
+  // Triple verrou obligatoire sur prelevement_honoraires :
+  //   (a) convention signée + (b) note émise + (c) justificatif
+  mouvementsCARPA: defineTable({
+    sousCompteCarpaId: v.id("sousComptesCARPA"),
+    type: v.union(
+      v.literal("versement_provision"),
+      v.literal("prelevement_honoraires"),
+      v.literal("remboursement_client")
+    ),
+    montant: v.number(),
+    dateOperation: v.string(),
+    noteHonorairesId: v.optional(v.id("notesHonoraires")),
+    storageIdJustificatif: v.optional(v.id("_storage")),
+    libelle: v.string(),
+    createdBy: v.id("users"),
+  })
+    .index("by_sousCompte", ["sousCompteCarpaId"])
+    .index("by_note", ["noteHonorairesId"]),
+
+  // ─── Diligences (prestations facturables) ───────────────
+  diligences: defineTable({
+    dossierId: v.id("dossiers"),
+    date: v.string(),
+    description: v.string(),
+    dureeMinutes: v.number(),
+    tauxHoraire: v.number(),
+    montantValorise: v.number(), // calculé = duree/60 * taux
+    saisiePar: v.id("users"),
+  })
+    .index("by_dossier", ["dossierId"])
+    .index("by_intervenant", ["saisiePar"]),
+
+  // ─── Tokens intégrations tierces (OAuth) ────────────────
+  // Stockage sécurisé des tokens Pennylane, Stripe, etc.
+  // Ne JAMAIS retourner ces tokens côté client.
+  integrationsTokens: defineTable({
+    provider: v.union(v.literal("pennylane")),
+    accessToken: v.string(),
+    refreshToken: v.string(),
+    expiresAt: v.number(),
+    scopes: v.optional(v.array(v.string())),
+  }).index("by_provider", ["provider"]),
 });

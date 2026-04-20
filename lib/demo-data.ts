@@ -334,3 +334,434 @@ export const DEMO_DOSSIER_COUNT = {
   fiscal: 1,
   actifs: 4,
 };
+
+// =========================================================================
+// LegalPay fixtures — socle déontologique (CARPA, conventions, provisions)
+// =========================================================================
+// Référence : art. P.75.1 et P.75.2 RIBP, art. 6.2 RIN, art. 11.2 RIN
+// Règle d'or : les soldes CARPA ne sont JAMAIS de la trésorerie disponible.
+
+const NOW = Date.now();
+const DAY = 1000 * 60 * 60 * 24;
+
+export interface DemoConvention {
+  _id: string;
+  _creationTime: number;
+  dossierId: string;
+  type: "forfait" | "tempsPasse" | "mixte";
+  statut: "brouillon" | "envoyee" | "signee" | "resiliee";
+  signedAt?: number;
+  montantForfait?: number;
+  tauxHoraire?: number;
+  plafond?: number;
+}
+
+export const DEMO_CONVENTIONS: DemoConvention[] = [
+  {
+    _id: "demo_conv_1",
+    _creationTime: NOW - 180 * DAY,
+    dossierId: "demo_dossier_1",
+    type: "forfait",
+    statut: "signee",
+    signedAt: NOW - 175 * DAY,
+    montantForfait: 28000,
+  },
+  {
+    _id: "demo_conv_2",
+    _creationTime: NOW - 95 * DAY,
+    dossierId: "demo_dossier_2",
+    type: "tempsPasse",
+    statut: "signee",
+    signedAt: NOW - 90 * DAY,
+    tauxHoraire: 320,
+    plafond: 45000,
+  },
+  {
+    _id: "demo_conv_3",
+    _creationTime: NOW - 65 * DAY,
+    dossierId: "demo_dossier_3",
+    type: "mixte",
+    statut: "signee",
+    signedAt: NOW - 60 * DAY,
+    montantForfait: 12000,
+    tauxHoraire: 280,
+  },
+  {
+    _id: "demo_conv_4",
+    _creationTime: NOW - 12 * DAY,
+    dossierId: "demo_dossier_4",
+    type: "tempsPasse",
+    statut: "envoyee",
+    tauxHoraire: 290,
+    plafond: 18000,
+  },
+];
+
+export interface DemoSousCompteCarpa {
+  _id: string;
+  _creationTime: number;
+  dossierId: string;
+  numero: string;
+  solde: number;
+}
+
+export const DEMO_SOUSCOMPTES_CARPA: DemoSousCompteCarpa[] = [
+  {
+    _id: "demo_carpa_1",
+    _creationTime: NOW - 180 * DAY,
+    dossierId: "demo_dossier_1",
+    numero: "CARPA-2026-0001",
+    solde: 8500,
+  },
+  {
+    _id: "demo_carpa_2",
+    _creationTime: NOW - 90 * DAY,
+    dossierId: "demo_dossier_2",
+    numero: "CARPA-2026-0003",
+    solde: 3200,
+  },
+  {
+    _id: "demo_carpa_3",
+    _creationTime: NOW - 60 * DAY,
+    dossierId: "demo_dossier_3",
+    numero: "CARPA-2026-0002",
+    solde: 5100,
+  },
+  {
+    _id: "demo_carpa_4",
+    _creationTime: NOW - 10 * DAY,
+    dossierId: "demo_dossier_4",
+    numero: "CARPA-2026-0007",
+    solde: 0,
+  },
+];
+
+export interface DemoProvision {
+  _id: string;
+  _creationTime: number;
+  dossierId: string;
+  sousCompteCarpaId: string;
+  montant: number;
+  dateVersement: string; // ISO date
+  statut: "attendue" | "recue";
+}
+
+export const DEMO_PROVISIONS: DemoProvision[] = [
+  {
+    _id: "demo_prov_1",
+    _creationTime: NOW - 170 * DAY,
+    dossierId: "demo_dossier_1",
+    sousCompteCarpaId: "demo_carpa_1",
+    montant: 15000,
+    dateVersement: new Date(NOW - 170 * DAY).toISOString().slice(0, 10),
+    statut: "recue",
+  },
+  {
+    _id: "demo_prov_2",
+    _creationTime: NOW - 60 * DAY,
+    dossierId: "demo_dossier_1",
+    sousCompteCarpaId: "demo_carpa_1",
+    montant: 10000,
+    dateVersement: new Date(NOW - 60 * DAY).toISOString().slice(0, 10),
+    statut: "recue",
+  },
+  {
+    _id: "demo_prov_3",
+    _creationTime: NOW - 80 * DAY,
+    dossierId: "demo_dossier_2",
+    sousCompteCarpaId: "demo_carpa_2",
+    montant: 20000,
+    dateVersement: new Date(NOW - 80 * DAY).toISOString().slice(0, 10),
+    statut: "recue",
+  },
+  {
+    _id: "demo_prov_4",
+    _creationTime: NOW - 58 * DAY,
+    dossierId: "demo_dossier_3",
+    sousCompteCarpaId: "demo_carpa_3",
+    montant: 12000,
+    dateVersement: new Date(NOW - 58 * DAY).toISOString().slice(0, 10),
+    statut: "recue",
+  },
+  {
+    _id: "demo_prov_5",
+    _creationTime: NOW - 5 * DAY,
+    dossierId: "demo_dossier_4",
+    sousCompteCarpaId: "demo_carpa_4",
+    montant: 6000,
+    dateVersement: new Date(NOW - 5 * DAY).toISOString().slice(0, 10),
+    statut: "attendue",
+  },
+];
+
+export interface DemoDiligence {
+  _id: string;
+  _creationTime: number;
+  dossierId: string;
+  date: string;
+  description: string;
+  dureeMinutes: number;
+  tauxHoraire: number;
+  montantValorise: number;
+  saisiePar: string;
+}
+
+// Diligences réparties : dossier 1 ~70% consommé (vert-orange),
+// dossier 2 = 90% (rouge), dossier 3 = 40% (vert), dossier 4 = 0%.
+function diligence(
+  id: string,
+  dossierId: string,
+  daysAgo: number,
+  description: string,
+  dureeMinutes: number,
+  tauxHoraire: number,
+  saisiePar: string
+): DemoDiligence {
+  return {
+    _id: id,
+    _creationTime: NOW - daysAgo * DAY,
+    dossierId,
+    date: new Date(NOW - daysAgo * DAY).toISOString().slice(0, 10),
+    description,
+    dureeMinutes,
+    tauxHoraire,
+    montantValorise: Math.round((dureeMinutes / 60) * tauxHoraire),
+    saisiePar,
+  };
+}
+
+export const DEMO_DILIGENCES: DemoDiligence[] = [
+  // Dossier 1 — Constitution TechVision : convention forfait 28 000 €
+  // ~17 500 € valorisés → ratio 62% (orange)
+  diligence("d1", "demo_dossier_1", 160, "Analyse projet de statuts et pacte", 240, 320, "demo_user_1"),
+  diligence("d2", "demo_dossier_1", 140, "Rédaction statuts V1", 480, 320, "demo_user_1"),
+  diligence("d3", "demo_dossier_1", 120, "Négociation pacte d'associés", 360, 320, "demo_user_2"),
+  diligence("d4", "demo_dossier_1", 90, "Dépôt formalités greffe", 180, 280, "demo_user_3"),
+  diligence("d5", "demo_dossier_1", 45, "AG extraordinaire modification capital", 300, 320, "demo_user_1"),
+  diligence("d6", "demo_dossier_1", 20, "Suivi post-constitution", 180, 280, "demo_user_2"),
+
+  // Dossier 2 — Litige BTP : taux 320 €/h — 20 000 € provision, ~17 900 valorisés → 90% (rouge)
+  diligence("d7", "demo_dossier_2", 80, "Étude dossier et prescription", 300, 320, "demo_user_1"),
+  diligence("d8", "demo_dossier_2", 70, "Rédaction mise en demeure", 240, 320, "demo_user_2"),
+  diligence("d9", "demo_dossier_2", 50, "Assignation TC Paris", 420, 320, "demo_user_1"),
+  diligence("d10", "demo_dossier_2", 35, "Conclusions n°1", 480, 320, "demo_user_2"),
+  diligence("d11", "demo_dossier_2", 20, "Audience mise en état", 240, 320, "demo_user_1"),
+  diligence("d12", "demo_dossier_2", 8, "Conclusions n°2 et pièces", 600, 320, "demo_user_2"),
+  diligence("d13", "demo_dossier_2", 3, "Préparation plaidoirie", 300, 320, "demo_user_1"),
+
+  // Dossier 3 — Fiscal Mercier : mixte, 12 000 forfait + tempsPasse 280 €/h
+  // ~4 800 valorisés → 40% (vert)
+  diligence("d14", "demo_dossier_3", 55, "Audit situation fiscale", 360, 280, "demo_user_1"),
+  diligence("d15", "demo_dossier_3", 40, "Rédaction réclamation contentieuse", 480, 280, "demo_user_2"),
+  diligence("d16", "demo_dossier_3", 25, "Suivi dossier administration", 180, 280, "demo_user_1"),
+
+  // Dossier 4 — pas encore de diligences (convention non signée)
+];
+
+export interface DemoNoteHonoraires {
+  _id: string;
+  _creationTime: number;
+  dossierId: string;
+  conventionId: string;
+  numero: string;
+  montantHT: number;
+  montantTTC: number;
+  tva: number;
+  dateEmission: string;
+  dateEcheance: string;
+  statut:
+    | "brouillon"
+    | "validee"
+    | "envoyee"
+    | "payee_partiellement"
+    | "payee"
+    | "en_retard";
+  datePaiement?: string;
+}
+
+export const DEMO_NOTES_HONORAIRES: DemoNoteHonoraires[] = [
+  {
+    _id: "demo_note_1",
+    _creationTime: NOW - 130 * DAY,
+    dossierId: "demo_dossier_1",
+    conventionId: "demo_conv_1",
+    numero: "NH-2026-0001",
+    montantHT: 10000,
+    montantTTC: 12000,
+    tva: 20,
+    dateEmission: new Date(NOW - 130 * DAY).toISOString().slice(0, 10),
+    dateEcheance: new Date(NOW - 100 * DAY).toISOString().slice(0, 10),
+    statut: "payee",
+    datePaiement: new Date(NOW - 95 * DAY).toISOString().slice(0, 10),
+  },
+  {
+    _id: "demo_note_2",
+    _creationTime: NOW - 30 * DAY,
+    dossierId: "demo_dossier_2",
+    conventionId: "demo_conv_2",
+    numero: "NH-2026-0002",
+    montantHT: 6000,
+    montantTTC: 7200,
+    tva: 20,
+    dateEmission: new Date(NOW - 30 * DAY).toISOString().slice(0, 10),
+    dateEcheance: new Date(NOW - 0 * DAY).toISOString().slice(0, 10),
+    statut: "envoyee",
+  },
+  {
+    _id: "demo_note_3",
+    _creationTime: NOW - 50 * DAY,
+    dossierId: "demo_dossier_3",
+    conventionId: "demo_conv_3",
+    numero: "NH-2026-0003",
+    montantHT: 4000,
+    montantTTC: 4800,
+    tva: 20,
+    dateEmission: new Date(NOW - 50 * DAY).toISOString().slice(0, 10),
+    dateEcheance: new Date(NOW - 20 * DAY).toISOString().slice(0, 10),
+    statut: "en_retard",
+  },
+];
+
+export interface DemoMouvementCarpa {
+  _id: string;
+  _creationTime: number;
+  sousCompteCarpaId: string;
+  type: "versement_provision" | "prelevement_honoraires" | "remboursement_client";
+  montant: number;
+  dateOperation: string;
+  noteHonorairesId?: string;
+  libelle: string;
+}
+
+export const DEMO_MOUVEMENTS_CARPA: DemoMouvementCarpa[] = [
+  {
+    _id: "demo_mvt_1",
+    _creationTime: NOW - 170 * DAY,
+    sousCompteCarpaId: "demo_carpa_1",
+    type: "versement_provision",
+    montant: 15000,
+    dateOperation: new Date(NOW - 170 * DAY).toISOString().slice(0, 10),
+    libelle: "Versement provision initiale",
+  },
+  {
+    _id: "demo_mvt_2",
+    _creationTime: NOW - 125 * DAY,
+    sousCompteCarpaId: "demo_carpa_1",
+    type: "prelevement_honoraires",
+    montant: 12000,
+    dateOperation: new Date(NOW - 125 * DAY).toISOString().slice(0, 10),
+    noteHonorairesId: "demo_note_1",
+    libelle: "Prélèvement NH-2026-0001 (triple verrou validé)",
+  },
+  {
+    _id: "demo_mvt_3",
+    _creationTime: NOW - 60 * DAY,
+    sousCompteCarpaId: "demo_carpa_1",
+    type: "versement_provision",
+    montant: 10000,
+    dateOperation: new Date(NOW - 60 * DAY).toISOString().slice(0, 10),
+    libelle: "Complément provision",
+  },
+  {
+    _id: "demo_mvt_4",
+    _creationTime: NOW - 80 * DAY,
+    sousCompteCarpaId: "demo_carpa_2",
+    type: "versement_provision",
+    montant: 20000,
+    dateOperation: new Date(NOW - 80 * DAY).toISOString().slice(0, 10),
+    libelle: "Versement provision initiale",
+  },
+  {
+    _id: "demo_mvt_5",
+    _creationTime: NOW - 28 * DAY,
+    sousCompteCarpaId: "demo_carpa_2",
+    type: "prelevement_honoraires",
+    montant: 7200,
+    dateOperation: new Date(NOW - 28 * DAY).toISOString().slice(0, 10),
+    noteHonorairesId: "demo_note_2",
+    libelle: "Prélèvement NH-2026-0002 (triple verrou validé)",
+  },
+  {
+    _id: "demo_mvt_6",
+    _creationTime: NOW - 58 * DAY,
+    sousCompteCarpaId: "demo_carpa_3",
+    type: "versement_provision",
+    montant: 12000,
+    dateOperation: new Date(NOW - 58 * DAY).toISOString().slice(0, 10),
+    libelle: "Versement provision",
+  },
+  {
+    _id: "demo_mvt_7",
+    _creationTime: NOW - 45 * DAY,
+    sousCompteCarpaId: "demo_carpa_3",
+    type: "prelevement_honoraires",
+    montant: 4800,
+    dateOperation: new Date(NOW - 45 * DAY).toISOString().slice(0, 10),
+    noteHonorairesId: "demo_note_3",
+    libelle: "Prélèvement NH-2026-0003",
+  },
+  {
+    _id: "demo_mvt_8",
+    _creationTime: NOW - 15 * DAY,
+    sousCompteCarpaId: "demo_carpa_3",
+    type: "remboursement_client",
+    montant: 2100,
+    dateOperation: new Date(NOW - 15 * DAY).toISOString().slice(0, 10),
+    libelle: "Remboursement solde au client (clôture partielle)",
+  },
+];
+
+// Pennylane mock — compte professionnel du cabinet
+// Ces données NE CONCERNENT PAS les fonds clients.
+export const DEMO_PENNYLANE_COMPTE_PRO = {
+  solde: 47830,
+  iban: "FR76 **** **** **** **** 1234",
+  devise: "EUR",
+  derniereSync: NOW - 2 * 60 * 60 * 1000,
+};
+
+export const DEMO_PENNYLANE_MOUVEMENTS = [
+  {
+    _id: "pyl_1",
+    date: new Date(NOW - 1 * DAY).toISOString().slice(0, 10),
+    libelle: "Virement reçu — TechVision SAS",
+    montant: 12000,
+    type: "credit" as const,
+  },
+  {
+    _id: "pyl_2",
+    date: new Date(NOW - 3 * DAY).toISOString().slice(0, 10),
+    libelle: "URSSAF — cotisations T1",
+    montant: -4850,
+    type: "debit" as const,
+  },
+  {
+    _id: "pyl_3",
+    date: new Date(NOW - 5 * DAY).toISOString().slice(0, 10),
+    libelle: "Loyer cabinet — SCI Immobilière",
+    montant: -3200,
+    type: "debit" as const,
+  },
+  {
+    _id: "pyl_4",
+    date: new Date(NOW - 7 * DAY).toISOString().slice(0, 10),
+    libelle: "Virement reçu — Groupe Mercier SA",
+    montant: 7200,
+    type: "credit" as const,
+  },
+  {
+    _id: "pyl_5",
+    date: new Date(NOW - 11 * DAY).toISOString().slice(0, 10),
+    libelle: "Abonnement Lexbase",
+    montant: -295,
+    type: "debit" as const,
+  },
+  {
+    _id: "pyl_6",
+    date: new Date(NOW - 15 * DAY).toISOString().slice(0, 10),
+    libelle: "Salaires — paie M-1",
+    montant: -11200,
+    type: "debit" as const,
+  },
+];
+

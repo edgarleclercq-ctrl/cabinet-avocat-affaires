@@ -19,6 +19,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { EtatFinancier } from "@/components/dossiers/etat-financier";
+import { computeEtatFinancierDossierDemo } from "@/lib/legalpay/etat-dossier";
 import {
   Card,
   CardContent,
@@ -206,6 +208,7 @@ export default function DossierDetailPage() {
       <Tabs defaultValue="informations">
         <TabsList variant="line">
           <TabsTrigger value="informations">Informations</TabsTrigger>
+          <TabsTrigger value="honoraires">Honoraires &amp; CARPA</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="echeances">Échéances</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
@@ -220,6 +223,14 @@ export default function DossierDetailPage() {
             client={client}
             userMap={userMap}
             users={users ?? []}
+          />
+        </TabsContent>
+
+        <TabsContent value="honoraires">
+          <EtatFinancier
+            etat={computeEtatFinancierDossierDemo(
+              dossierId as unknown as string
+            )}
           />
         </TabsContent>
 

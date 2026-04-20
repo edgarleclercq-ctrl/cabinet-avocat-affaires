@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -9,7 +10,12 @@ import {
   DEMO_ECHEANCES,
   DEMO_FACTURE_STATS,
   DEMO_ACTIVITES,
+  DEMO_CLIENTS,
 } from "@/lib/demo-data";
+import { computeEtatCabinetDemo } from "@/lib/legalpay/etat-dossier";
+import { TresorerieCabinet } from "@/components/dashboard/tresorerie-cabinet";
+import { KpiFinanciers } from "@/components/dashboard/kpi-financiers";
+import { AlertesConformite } from "@/components/dashboard/alertes-conformite";
 import Link from "next/link";
 import { formatDistanceToNow, format, differenceInHours } from "date-fns";
 import { fr } from "date-fns/locale/fr";
@@ -211,15 +217,42 @@ function AssocieCollaborateurDashboard({
   factureStats,
   activites,
   role,
+  etatCabinet,
 }: {
   dossierCount: number | undefined;
   echeances: any;
   factureStats: any;
   activites: any;
   role: string;
+  etatCabinet: ReturnType<typeof computeEtatCabinetDemo>;
 }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
+      {/* Pilier 1 LegalPay — trésorerie + KPIs financiers + alertes conformité */}
+      <TresorerieCabinet
+        soldeCarpaTotal={etatCabinet.soldeCarpaTotal}
+        nbSousComptesCarpa={etatCabinet.nbSousComptesCarpa}
+      />
+      <KpiFinanciers
+        provisionsDetenues={etatCabinet.provisionsDetenues}
+        honorairesNonEncaisses={etatCabinet.honorairesNonEncaisses}
+        ageMoyenCreancesJours={etatCabinet.ageMoyenCreancesJours}
+        nbDossiersEnAlerte={etatCabinet.dossiersEnAlerte.length}
+      />
+      <AlertesConformite
+        dossiersEnAlerte={etatCabinet.dossiersEnAlerte}
+        conventionsEnAttention={etatCabinet.conventionsEnAttention}
+      />
+
+      {/* Séparateur visuel : section opérationnelle */}
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-px flex-1 bg-border-subtle" />
+        <span className="text-xs font-medium uppercase tracking-[0.12em] text-text-subtle">
+          Opérationnel
+        </span>
+        <span aria-hidden className="h-px flex-1 bg-border-subtle" />
+      </div>
+
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Dossiers actifs"
@@ -452,6 +485,17 @@ export default function DashboardPage() {
   const factureStats = DEMO_MODE ? DEMO_FACTURE_STATS : convexFactureStats;
   const activites = DEMO_MODE ? DEMO_ACTIVITES : convexActivites;
 
+  // Pilier 1 LegalPay — agrégat cabinet (trésorerie CARPA, créances, alertes)
+  const etatCabinet = React.useMemo(() => {
+    const clientsById = new Map(
+      (DEMO_MODE ? DEMO_CLIENTS : []).map((c: any) => [
+        c._id as string,
+        { denomination: c.denomination },
+      ])
+    );
+    return computeEtatCabinetDemo(clientsById);
+  }, []);
+
   if (!user) {
     return (
       <div className="flex h-full items-center justify-center py-20">
@@ -477,6 +521,7 @@ export default function DashboardPage() {
           factureStats={factureStats}
           activites={activites}
           role={role}
+          etatCabinet={etatCabinet}
         />
       )}
 
