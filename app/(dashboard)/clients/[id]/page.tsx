@@ -46,6 +46,8 @@ import {
 import { ClientForm } from "@/components/clients/client-form";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
+import { PageHeader } from "@/components/shared/page-header";
+import { StatusBadge } from "@/components/shared/status-badge";
 
 export default function ClientDetailPage() {
   const params = useParams<{ id: string }>();
@@ -78,42 +80,47 @@ export default function ClientDetailPage() {
   const avocatReferent = users?.find((u: any) => u._id === client.avocatReferentId);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{client.denomination}</h1>
-          <p className="text-muted-foreground">
-            {client.type === "personne_morale"
-              ? "Personne morale"
-              : "Personne physique"}
-            {client.formeJuridique && ` — ${client.formeJuridique}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={client.isActive ? "default" : "outline"}>
-            {client.isActive ? "Actif" : "Inactif"}
-          </Badge>
-          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-            <DialogTrigger
-              render={
-                <Button variant="outline">
-                  <PencilIcon data-icon="inline-start" />
-                  Modifier
-                </Button>
-              }
+    <div className="flex flex-col gap-8 p-6 lg:p-8">
+      <PageHeader
+        breadcrumbs={[
+          { label: "Clients", href: "/clients" },
+          { label: client.denomination },
+        ]}
+        title={client.denomination}
+        subtitle={
+          (client.type === "personne_morale"
+            ? "Personne morale"
+            : "Personne physique") +
+          (client.formeJuridique ? ` — ${client.formeJuridique}` : "")
+        }
+        actions={
+          <>
+            <StatusBadge
+              kind="client-actif"
+              value={Boolean(client.isActive)}
             />
-            <DialogContent className="sm:max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Modifier le client</DialogTitle>
-              </DialogHeader>
-              <ClientForm
-                client={client}
-                onClose={() => setEditDialogOpen(false)}
+            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+              <DialogTrigger
+                render={
+                  <Button variant="outline">
+                    <PencilIcon data-icon="inline-start" />
+                    Modifier
+                  </Button>
+                }
               />
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Modifier le client</DialogTitle>
+                </DialogHeader>
+                <ClientForm
+                  client={client}
+                  onClose={() => setEditDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        }
+      />
 
       <Tabs defaultValue="informations">
         <TabsList>

@@ -46,21 +46,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-
-function roleBadgeClass(role: string) {
-  switch (role) {
-    case "associe":
-      return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
-    case "collaborateur":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-    case "secretaire":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
-    case "stagiaire":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
-    default:
-      return "";
-  }
-}
+import { PageHeader } from "@/components/shared/page-header";
+import { StatusBadge } from "@/components/shared/status-badge";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -144,16 +131,11 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Settings className="h-6 w-6" />
-          Administration
-        </h1>
-        <p className="text-muted-foreground">
-          Gestion des utilisateurs et parametres du cabinet
-        </p>
-      </div>
+    <div className="flex flex-1 flex-col gap-8 p-6 lg:p-8">
+      <PageHeader
+        title="Administration"
+        subtitle="Gestion des utilisateurs et paramètres du cabinet."
+      />
 
       {/* Section A: Gestion des utilisateurs */}
       <Card>
@@ -192,20 +174,13 @@ export default function AdminPage() {
                       </TableCell>
                       <TableCell>{u.email ?? "-"}</TableCell>
                       <TableCell>
-                        <Badge className={roleBadgeClass(u.role)}>
-                          {ROLES[u.role as keyof typeof ROLES] ?? u.role}
-                        </Badge>
+                        <StatusBadge kind="role" value={u.role} />
                       </TableCell>
                       <TableCell>
-                        {u.actif === false ? (
-                          <Badge variant="outline" className="text-muted-foreground">
-                            Inactif
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            Actif
-                          </Badge>
-                        )}
+                        <StatusBadge
+                          kind="client-actif"
+                          value={u.actif !== false}
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

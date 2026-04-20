@@ -5,15 +5,19 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { SPECIALITES, STATUTS_CORPORATE, STATUTS_LITIGE, STATUTS_FISCAL } from "@/lib/constants";
-import { DEMO_MODE, DEMO_USER, DEMO_DOSSIERS, DEMO_USERS, DEMO_CLIENTS } from "@/lib/demo-data";
-import { useDemoAddedClients, useDemoAddedDossiers } from "@/lib/demo-store";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  SPECIALITES,
+  STATUTS_CORPORATE,
+  STATUTS_LITIGE,
+  STATUTS_FISCAL,
+} from "@/lib/constants";
+import {
+  DEMO_MODE,
+  DEMO_DOSSIERS,
+  DEMO_USERS,
+  DEMO_CLIENTS,
+} from "@/lib/demo-data";
+import { useDemoAddedClients, useDemoAddedDossiers } from "@/lib/demo-store";
 import {
   Table,
   TableBody,
@@ -22,7 +26,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,7 +44,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DossierForm } from "@/components/dossiers/dossier-form";
-import { Plus, Search, LayoutGrid, TableIcon } from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
+import { FilterToolbar } from "@/components/shared/filter-toolbar";
+import { StatusBadge } from "@/components/shared/status-badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Plus, Search, LayoutGrid, TableIcon, FolderOpen } from "lucide-react";
 
 const ALL_STATUTS = [
   ...STATUTS_CORPORATE,
@@ -52,24 +59,6 @@ const uniqueStatuts = ALL_STATUTS.filter(
   (s, i, arr) => arr.findIndex((x) => x.value === s.value) === i
 );
 
-const specialiteBadgeClass: Record<string, string> = {
-  corporate: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  litige: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  fiscal: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-};
-
-function statutLabel(value: string): string {
-  const found = ALL_STATUTS.find((s) => s.value === value);
-  return found ? found.label : value;
-}
-
-function statutBadgeClass(value: string): string {
-  if (value === "clos") return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-  if (value === "ouvert") return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
-  if (value.includes("attente")) return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
-  return "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400";
-}
-
 export default function DossiersPage() {
   const [search, setSearch] = useState("");
   const [specialite, setSpecialite] = useState<string>("");
@@ -79,14 +68,19 @@ export default function DossiersPage() {
 
   const convexUsers = useQuery(api.users.list, DEMO_MODE ? "skip" : {});
   const convexClients = useQuery(api.clients.list, DEMO_MODE ? "skip" : {});
-  const convexDossiers = useQuery(api.dossiers.list, DEMO_MODE ? "skip" : {
-    search: search || undefined,
-    specialite: specialite || undefined,
-    statut: statut || undefined,
-    avocatResponsableId: avocatResponsableId
-      ? (avocatResponsableId as Id<"users">)
-      : undefined,
-  });
+  const convexDossiers = useQuery(
+    api.dossiers.list,
+    DEMO_MODE
+      ? "skip"
+      : {
+          search: search || undefined,
+          specialite: specialite || undefined,
+          statut: statut || undefined,
+          avocatResponsableId: avocatResponsableId
+            ? (avocatResponsableId as Id<"users">)
+            : undefined,
+        }
+  );
 
   const users = DEMO_MODE ? DEMO_USERS : convexUsers;
   const addedDemoClients = useDemoAddedClients();
@@ -98,7 +92,6 @@ export default function DossiersPage() {
     ? [...addedDemoDossiers, ...DEMO_DOSSIERS]
     : [];
 
-  // Filtrage côté client en mode démo
   const filteredDemoDossiers = DEMO_MODE
     ? allDemoDossiers.filter((d: any) => {
         if (search) {
@@ -126,198 +119,175 @@ export default function DossiersPage() {
     (users ?? []).map((u: any) => [u._id, u.name])
   );
 
-  // Get next echeance for each dossier is complex - we show a simplified version
-  const kanbanStatuts = specialite === "litige"
-    ? STATUTS_LITIGE
-    : specialite === "fiscal"
-      ? STATUTS_FISCAL
-      : STATUTS_CORPORATE;
+  const kanbanStatuts =
+    specialite === "litige"
+      ? STATUTS_LITIGE
+      : specialite === "fiscal"
+        ? STATUTS_FISCAL
+        : STATUTS_CORPORATE;
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dossiers</h1>
-          <p className="text-muted-foreground">
-            Gestion des dossiers du cabinet
-          </p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger
-            render={
-              <Button>
-                <Plus className="mr-2 size-4" />
-                Nouveau dossier
-              </Button>
-            }
+    <div className="flex flex-1 flex-col gap-8 p-6 lg:p-8">
+      <PageHeader
+        title="Dossiers"
+        subtitle="Tous les dossiers ouverts et archivés du cabinet, par spécialité et statut."
+        actions={
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger
+              render={
+                <Button>
+                  <Plus data-icon="inline-start" />
+                  Nouveau dossier
+                </Button>
+              }
+            />
+            <DialogContent className="sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Nouveau dossier</DialogTitle>
+              </DialogHeader>
+              <DossierForm onClose={() => setDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        }
+      />
+
+      <FilterToolbar>
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-text-subtle" />
+          <Input
+            placeholder="Rechercher un dossier, une référence…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border-transparent bg-transparent pl-8 focus-visible:border-ring"
           />
-          <DialogContent className="sm:max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Nouveau dossier</DialogTitle>
-            </DialogHeader>
-            <DossierForm onClose={() => setDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
-      </div>
+        </div>
+        <span aria-hidden className="hidden h-5 w-px bg-border-subtle sm:block" />
+        <Select value={specialite} onValueChange={(val) => setSpecialite(val ?? "")}>
+          <SelectTrigger className="w-[170px]">
+            <SelectValue placeholder="Spécialité" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Toutes</SelectItem>
+            {Object.entries(SPECIALITES).map(([key, label]) => (
+              <SelectItem key={key} value={key}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={statut} onValueChange={(val) => setStatut(val ?? "")}>
+          <SelectTrigger className="w-[170px]">
+            <SelectValue placeholder="Statut" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Tous</SelectItem>
+            {uniqueStatuts.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={avocatResponsableId}
+          onValueChange={(val) => setAvocatResponsableId(val ?? "")}
+        >
+          <SelectTrigger className="w-[190px]">
+            <SelectValue placeholder="Avocat responsable" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Tous</SelectItem>
+            {(users ?? []).map((u) => (
+              <SelectItem key={u._id} value={u._id}>
+                {u.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FilterToolbar>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="flex flex-wrap items-end gap-4 pt-6">
-          <div className="flex-1 min-w-[200px]">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher un dossier..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-          </div>
-
-          <Select
-            value={specialite}
-            onValueChange={(val) => setSpecialite(val ?? "")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Spécialité" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Toutes</SelectItem>
-              {Object.entries(SPECIALITES).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={statut}
-            onValueChange={(val) => setStatut(val ?? "")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Tous</SelectItem>
-              {uniqueStatuts.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={avocatResponsableId}
-            onValueChange={(val) => setAvocatResponsableId(val ?? "")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Avocat responsable" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Tous</SelectItem>
-              {(users ?? []).map((u) => (
-                <SelectItem key={u._id} value={u._id}>
-                  {u.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      {/* Views toggle */}
-      <Tabs defaultValue="table">
+      <Tabs defaultValue="table" className="flex flex-col gap-4">
         <TabsList>
           <TabsTrigger value="table">
-            <TableIcon className="mr-1.5 size-4" />
+            <TableIcon className="mr-1.5 size-3.5" />
             Tableau
           </TabsTrigger>
           <TabsTrigger value="kanban">
-            <LayoutGrid className="mr-1.5 size-4" />
+            <LayoutGrid className="mr-1.5 size-3.5" />
             Kanban
           </TabsTrigger>
         </TabsList>
 
-        {/* Table view */}
         <TabsContent value="table">
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Référence</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Spécialité</TableHead>
-                  <TableHead>Intitulé</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Avocat responsable</TableHead>
-                  <TableHead>Date d&apos;ouverture</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {dossiers === undefined ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Chargement...
-                    </TableCell>
+          <div className="overflow-hidden rounded-lg border border-border-subtle bg-surface">
+            {dossiers === undefined ? (
+              <p className="py-16 text-center text-sm text-text-muted">
+                Chargement…
+              </p>
+            ) : dossiers.length === 0 ? (
+              <div className="p-6">
+                <EmptyState
+                  icon={FolderOpen}
+                  title="Aucun dossier trouvé"
+                  description="Aucun dossier ne correspond à vos filtres."
+                />
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b-border-subtle hover:bg-transparent">
+                    <TableHead>Référence</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Spécialité</TableHead>
+                    <TableHead>Intitulé</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Avocat responsable</TableHead>
+                    <TableHead>Ouverture</TableHead>
                   </TableRow>
-                ) : dossiers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Aucun dossier trouvé
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  dossiers.map((dossier) => (
+                </TableHeader>
+                <TableBody>
+                  {dossiers.map((dossier) => (
                     <TableRow key={dossier._id}>
                       <TableCell>
                         <Link
                           href={`/dossiers/${dossier._id}`}
-                          className="font-mono text-sm font-medium hover:underline"
+                          className="font-mono text-xs font-medium text-text-strong transition-colors hover:text-gold"
                         >
                           {dossier.reference}
                         </Link>
                       </TableCell>
-                      <TableCell>
-                        {clientMap.get(dossier.clientId) ?? "..."}
+                      <TableCell className="text-text-default">
+                        {clientMap.get(dossier.clientId) ?? "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={specialiteBadgeClass[dossier.specialite] ?? ""}
-                        >
-                          {SPECIALITES[dossier.specialite as keyof typeof SPECIALITES]}
-                        </Badge>
+                        <StatusBadge
+                          kind="specialite"
+                          value={dossier.specialite}
+                        />
                       </TableCell>
-                      <TableCell className="max-w-[250px] truncate">
+                      <TableCell className="max-w-[280px] truncate text-text-default">
                         {dossier.intitule}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={statutBadgeClass(dossier.statut)}
-                        >
-                          {statutLabel(dossier.statut)}
-                        </Badge>
+                        <StatusBadge
+                          kind="dossier-statut"
+                          value={dossier.statut}
+                        />
                       </TableCell>
-                      <TableCell>
-                        {userMap.get(dossier.avocatResponsableId) ?? "..."}
+                      <TableCell className="text-text-muted">
+                        {userMap.get(dossier.avocatResponsableId) ?? "—"}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-text-subtle">
                         {dossier.dateOuverture}
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         </TabsContent>
 
-        {/* Kanban view */}
         <TabsContent value="kanban">
           <div className="flex gap-4 overflow-x-auto pb-4">
             {kanbanStatuts.map((col) => {
@@ -325,48 +295,39 @@ export default function DossiersPage() {
                 (d) => d.statut === col.value
               );
               return (
-                <div key={col.value} className="flex-shrink-0 w-72">
-                  <div className="mb-3 flex items-center gap-2">
-                    <Badge variant="outline" className={statutBadgeClass(col.value)}>
-                      {col.label}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      ({colDossiers.length})
+                <div key={col.value} className="w-72 flex-shrink-0">
+                  <div className="mb-3 flex items-center justify-between">
+                    <StatusBadge kind="dossier-statut" value={col.value} />
+                    <span className="text-xs font-medium text-text-subtle tabular-nums">
+                      {colDossiers.length}
                     </span>
                   </div>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
                     {colDossiers.map((dossier) => (
                       <Link
                         key={dossier._id}
                         href={`/dossiers/${dossier._id}`}
+                        className="group flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-3.5 transition-colors hover:border-gold/40"
                       >
-                        <Card className="hover:border-primary/50 transition-colors cursor-pointer">
-                          <CardHeader className="p-4 pb-2">
-                            <div className="flex items-center justify-between">
-                              <span className="font-mono text-xs text-muted-foreground">
-                                {dossier.reference}
-                              </span>
-                              <Badge
-                                variant="secondary"
-                                className={specialiteBadgeClass[dossier.specialite] ?? ""}
-                              >
-                                {SPECIALITES[dossier.specialite as keyof typeof SPECIALITES]}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="p-4 pt-0">
-                            <CardTitle className="text-sm mb-1">
-                              {dossier.intitule}
-                            </CardTitle>
-                            <p className="text-xs text-muted-foreground">
-                              {clientMap.get(dossier.clientId) ?? "..."}
-                            </p>
-                          </CardContent>
-                        </Card>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-mono text-[0.7rem] font-medium text-text-muted">
+                            {dossier.reference}
+                          </span>
+                          <StatusBadge
+                            kind="specialite"
+                            value={dossier.specialite}
+                          />
+                        </div>
+                        <p className="text-sm font-medium text-text-strong line-clamp-2">
+                          {dossier.intitule}
+                        </p>
+                        <p className="text-xs text-text-subtle">
+                          {clientMap.get(dossier.clientId) ?? "—"}
+                        </p>
                       </Link>
                     ))}
                     {colDossiers.length === 0 && (
-                      <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
+                      <div className="rounded-lg border border-dashed border-border-subtle px-3 py-4 text-center text-xs text-text-subtle">
                         Aucun dossier
                       </div>
                     )}

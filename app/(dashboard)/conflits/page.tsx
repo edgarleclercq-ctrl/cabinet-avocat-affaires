@@ -10,6 +10,9 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/page-header";
+import { EmptyState } from "@/components/shared/empty-state";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -50,87 +53,68 @@ interface VerificationResult {
   }>;
 }
 
+const RESULTAT_TONE: Record<ResultatConflit, {
+  bg: string;
+  fg: string;
+  border: string;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+}> = {
+  aucun: {
+    bg: "bg-status-success",
+    fg: "text-status-success-fg",
+    border: "ring-status-success-fg/20",
+    icon: CheckCircle,
+    title: "Aucun conflit détecté",
+  },
+  potentiel: {
+    bg: "bg-status-warning",
+    fg: "text-status-warning-fg",
+    border: "ring-status-warning-fg/20",
+    icon: AlertTriangle,
+    title: "Conflit potentiel détecté",
+  },
+  confirme: {
+    bg: "bg-status-danger",
+    fg: "text-status-danger-fg",
+    border: "ring-status-danger-fg/20",
+    icon: XCircle,
+    title: "Conflit confirmé",
+  },
+};
+
 function ResultatCard({ result }: { result: VerificationResult }) {
-  if (result.resultat === "aucun") {
-    return (
-      <Card className="border-green-500 bg-green-50 dark:bg-green-950/20">
-        <CardContent className="flex items-center gap-3 pt-6">
-          <CheckCircle className="h-6 w-6 text-green-600" />
-          <div>
-            <p className="font-medium text-green-800 dark:text-green-400">
-              Aucun conflit detecte
-            </p>
-            <p className="text-sm text-green-700 dark:text-green-500">
-              La verification n&apos;a revele aucun conflit d&apos;interets avec les parties indiquees.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (result.resultat === "potentiel") {
-    return (
-      <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-6 w-6 text-yellow-600 shrink-0 mt-0.5" />
-            <div className="space-y-2">
-              <p className="font-medium text-yellow-800 dark:text-yellow-400">
-                Conflit potentiel detecte
-              </p>
-              {result.details && (
-                <p className="text-sm text-yellow-700 dark:text-yellow-500">
-                  {result.details}
-                </p>
-              )}
-              {result.conflits && result.conflits.length > 0 && (
-                <ul className="space-y-1">
-                  {result.conflits.map((c, i) => (
-                    <li key={i} className="text-sm text-yellow-700 dark:text-yellow-500">
-                      - {c.partieAdverse}
-                      {c.dossierRef && ` (Dossier: ${c.dossierRef})`}
-                      {c.client && ` — Client: ${c.client}`}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  const tone = RESULTAT_TONE[result.resultat];
+  const Icon = tone.icon;
   return (
-    <Card className="border-red-500 bg-red-50 dark:bg-red-950/20">
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-3">
-          <XCircle className="h-6 w-6 text-red-600 shrink-0 mt-0.5" />
-          <div className="space-y-2">
-            <p className="font-medium text-red-800 dark:text-red-400">
-              Conflit confirme
-            </p>
-            {result.details && (
-              <p className="text-sm text-red-700 dark:text-red-500">
-                {result.details}
-              </p>
-            )}
-            {result.conflits && result.conflits.length > 0 && (
-              <ul className="space-y-1">
-                {result.conflits.map((c, i) => (
-                  <li key={i} className="text-sm text-red-700 dark:text-red-500">
-                    - {c.partieAdverse}
-                    {c.dossierRef && ` (Dossier: ${c.dossierRef})`}
-                    {c.client && ` — Client: ${c.client}`}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className={cn(
+        "flex items-start gap-3 rounded-lg p-4 ring-1 ring-inset",
+        tone.bg,
+        tone.border
+      )}
+    >
+      <Icon className={cn("size-5 shrink-0 mt-0.5", tone.fg)} />
+      <div className="flex flex-col gap-1.5">
+        <p className={cn("font-medium", tone.fg)}>{tone.title}</p>
+        {result.details && (
+          <p className={cn("text-sm", tone.fg, "opacity-85")}>
+            {result.details}
+          </p>
+        )}
+        {result.conflits && result.conflits.length > 0 && (
+          <ul className="flex flex-col gap-1 text-sm">
+            {result.conflits.map((c, i) => (
+              <li key={i} className={cn(tone.fg, "opacity-85")}>
+                · {c.partieAdverse}
+                {c.dossierRef && ` (Dossier: ${c.dossierRef})`}
+                {c.client && ` — Client: ${c.client}`}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -148,11 +132,11 @@ function resultatBadgeVariant(resultat: ResultatConflit) {
 function resultatBadgeClass(resultat: ResultatConflit) {
   switch (resultat) {
     case "aucun":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+      return "bg-status-success text-status-success-fg ring-1 ring-inset ring-status-success-fg/10";
     case "potentiel":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+      return "bg-status-warning text-status-warning-fg ring-1 ring-inset ring-status-warning-fg/10";
     case "confirme":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+      return "bg-status-danger text-status-danger-fg ring-1 ring-inset ring-status-danger-fg/10";
   }
 }
 
@@ -237,23 +221,18 @@ export default function ConflitsPage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-full py-20">
-        <div className="text-muted-foreground">Chargement...</div>
+      <div className="flex h-full items-center justify-center py-20">
+        <div className="text-text-muted">Chargement…</div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Shield className="h-6 w-6" />
-          Conflits d&apos;interets
-        </h1>
-        <p className="text-muted-foreground">
-          Verification et registre des conflits d&apos;interets
-        </p>
-      </div>
+    <div className="flex flex-1 flex-col gap-8 p-6 lg:p-8">
+      <PageHeader
+        title="Conflits d'intérêts"
+        subtitle="Vérification automatique et registre de conformité déontologique."
+      />
 
       {/* Section A: Verification de conflit */}
       <Card>
@@ -341,9 +320,11 @@ export default function ConflitsPage() {
         </CardHeader>
         <CardContent>
           {!verifications || verifications.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              Aucune verification enregistree.
-            </p>
+            <EmptyState
+              icon={Shield}
+              title="Aucune vérification enregistrée"
+              description="Le registre des vérifications apparaîtra ici."
+            />
           ) : (
             <div className="overflow-x-auto">
               <Table>

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { StatusBadge } from "@/components/shared/status-badge";
 import {
   Send,
   CheckCircle,
@@ -19,17 +20,6 @@ import {
   ArrowRight,
   Ban,
 } from "lucide-react";
-
-const STATUT_COLORS: Record<string, string> = {
-  brouillon: "bg-gray-100 text-gray-700",
-  en_attente: "bg-yellow-100 text-yellow-800",
-  validee: "bg-blue-100 text-blue-800",
-  envoyee: "bg-purple-100 text-purple-800",
-  payee_partiellement: "bg-emerald-100 text-emerald-700",
-  payee: "bg-green-100 text-green-800",
-  en_retard: "bg-red-100 text-red-800",
-  annulee: "bg-gray-100 text-gray-500",
-};
 
 function getStatutLabel(statut: string) {
   return STATUTS_FACTURE.find((s) => s.value === statut)?.label ?? statut;
@@ -132,12 +122,7 @@ export function FactureDetail({ factureId }: FactureDetailProps) {
         </div>
         <div>
           <p className="text-muted-foreground">Statut</p>
-          <Badge
-            className={STATUT_COLORS[facture.statut] ?? ""}
-            variant="outline"
-          >
-            {getStatutLabel(facture.statut)}
-          </Badge>
+          <StatusBadge kind="facture-statut" value={facture.statut} />
         </div>
         {facture.acomptesDeduits ? (
           <div className="col-span-2">

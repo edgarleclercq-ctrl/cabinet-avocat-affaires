@@ -17,6 +17,8 @@ import {
   CATEGORIES_DOCUMENTS,
 } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/shared/page-header";
+import { StatusBadge } from "@/components/shared/status-badge";
 import {
   Card,
   CardContent,
@@ -76,16 +78,10 @@ import {
 
 // --- Helpers ---
 
-const specialiteBadgeClass: Record<string, string> = {
-  corporate: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  litige: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  fiscal: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-};
-
 const validationBadgeClass: Record<string, string> = {
-  a_relire: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  relu: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  valide: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  a_relire: "bg-status-warning text-status-warning-fg ring-1 ring-inset ring-status-warning-fg/10",
+  relu: "bg-status-info text-status-info-fg ring-1 ring-inset ring-status-info-fg/10",
+  valide: "bg-status-success text-status-success-fg ring-1 ring-inset ring-status-success-fg/10",
 };
 
 const validationLabels: Record<string, string> = {
@@ -166,53 +162,45 @@ export default function DossierDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="font-mono">
-              {dossier.reference}
-            </Badge>
-            <Badge
-              variant="secondary"
-              className={specialiteBadgeClass[dossier.specialite] ?? ""}
-            >
-              {SPECIALITES[dossier.specialite as keyof typeof SPECIALITES]}
-            </Badge>
-          </div>
-          <h1 className="text-2xl font-bold">{dossier.intitule}</h1>
-          <p className="text-muted-foreground">
-            Client : {client?.denomination ?? "..."} | Avocat responsable :{" "}
-            {userMap.get(dossier.avocatResponsableId) ?? "..."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline">
-                  {statutLabel(dossier.statut, dossier.specialite)}
-                  <ChevronDown className="ml-2 size-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent>
-              {statuts.map((s) => (
-                <DropdownMenuItem
-                  key={s.value}
-                  onClick={() => handleStatutChange(s.value)}
-                >
-                  {s.value === dossier.statut && (
-                    <Check className="mr-2 size-4" />
-                  )}
-                  {s.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+      <PageHeader
+        breadcrumbs={[
+          { label: "Dossiers", href: "/dossiers" },
+          { label: dossier.reference },
+        ]}
+        eyebrow={dossier.reference}
+        title={dossier.intitule}
+        subtitle={`Client : ${client?.denomination ?? "…"} — Avocat responsable : ${userMap.get(dossier.avocatResponsableId) ?? "…"}`}
+        actions={
+          <>
+            <StatusBadge kind="specialite" value={dossier.specialite} />
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline">
+                    {statutLabel(dossier.statut, dossier.specialite)}
+                    <ChevronDown className="ml-2 size-4" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent>
+                {statuts.map((s) => (
+                  <DropdownMenuItem
+                    key={s.value}
+                    onClick={() => handleStatutChange(s.value)}
+                  >
+                    {s.value === dossier.statut && (
+                      <Check className="mr-2 size-4" />
+                    )}
+                    {s.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        }
+      />
 
       {/* Tabs */}
       <Tabs defaultValue="informations">

@@ -38,6 +38,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/shared/page-header";
 
 interface AnalyseResult {
   resume?: string;
@@ -83,11 +84,11 @@ function pointAttentionColor(type: string) {
 function pointAttentionBadge(type: string) {
   switch (type) {
     case "info":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+      return "bg-status-info text-status-info-fg ring-1 ring-inset ring-status-info-fg/10";
     case "attention":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+      return "bg-status-warning text-status-warning-fg ring-1 ring-inset ring-status-warning-fg/10";
     case "critique":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+      return "bg-status-danger text-status-danger-fg ring-1 ring-inset ring-status-danger-fg/10";
     default:
       return "";
   }
@@ -538,16 +539,12 @@ export default function IAPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Brain className="h-6 w-6" />
-          IA Juridique
-        </h1>
-        <p className="text-muted-foreground">
-          Analyse de documents et redaction assistee par intelligence artificielle
-        </p>
-      </div>
+    <div className="flex flex-1 flex-col gap-8 p-6 lg:p-8">
+      <PageHeader
+        eyebrow="Nouveau"
+        title="IA Juridique"
+        subtitle="Analyse de documents et rédaction assistée par intelligence artificielle."
+      />
 
       <Tabs defaultValue="analyse">
         <TabsList>

@@ -181,7 +181,7 @@ export function CompanySearch({ onSelect, initialValue }: CompanySearchProps) {
               className="flex w-full items-start gap-3 px-3 py-2.5 text-left hover:bg-accent transition-colors border-b last:border-b-0"
               onClick={() => handleSelect(company)}
             >
-              <Building2 className="mt-0.5 size-4 shrink-0 text-[#BF9874]" />
+              <Building2 className="mt-0.5 size-4 shrink-0 text-gold" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">
                   {company.nom_complet}
